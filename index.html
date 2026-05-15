@@ -1,0 +1,5161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+<meta name="theme-color" content="#1a1612">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="format-detection" content="telephone=no">
+
+<title>SWAT Explosive Breacher Program v1.7</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+/* ─── DESIGN TOKENS ─────────────────────────────────────────────────────── */
+:root {
+  /* Typography */
+  --font-display: 'Arial Narrow', 'Roboto Condensed', 'Helvetica Neue', Arial, sans-serif;
+  --font-body:    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono:    'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+
+  /* Color — clean professional with warm authority */
+  --ink:        #1a1612;
+  --ink-2:      #3d3530;
+  --ink-3:      #7a706a;
+  --ink-4:      #706860;
+  --rule:       #d8dde2;
+  --rule-dark:  #b8c0c8;
+  --surface:    #ffffff;
+  --surface-2:  #edf0f2;
+  --surface-3:  #e4e8eb;
+  --gold:       #8a6a2a;
+  --gold-lt:    #c4a050;
+  --gold-bg:    #f5f0e4;
+  --danger:     #8b1c14;
+  --danger-lt:  #b83228;
+  --danger-bg:  #fdf3f2;
+
+  /* Section header */
+  --header-bg:  #1a1612;
+  --header-txt: #ffffff;
+
+  /* Spacing — 4px base grid */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 20px;
+  --s6: 24px; --s7: 28px; --s8: 32px; --s10: 40px; --s12: 48px;
+
+  /* Type scale */
+  --t-xs: 10px; --t-sm: 12px; --t-base: 13px;
+  --t-md: 15px; --t-lg: 18px; --t-xl: 22px;
+  --t-2xl: 28px; --t-3xl: 36px;
+
+  /* Radius */
+  --r: 3px;
+
+  /* Shadow */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.04);
+
+
+  /* Spacing overrides */
+  --field-gap: 14px;
+  --row-gap: 18px;
+  --card-gap: 14px;
+  --section-pad: 22px;
+}
+
+/* ─── RESET & BASE ───────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+body {
+  font-family: var(--font-body);
+  font-size: var(--t-base);
+  color: var(--ink);
+  background: #e8ebed;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* ─── SPLASH ─────────────────────────────────────────────────────────────── */
+#splash {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  background: #2c2c2c;
+  position: relative;
+  overflow: hidden;
+}
+
+#splash::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+
+.splash-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 520px;
+  width: 100%;
+}
+
+/* ── Department line ── */
+.splash-dept-line {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  color: #c4a050;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.splash-divider-top {
+  width: 100%;
+  height: 1px;
+  background: rgba(255,255,255,0.15);
+  margin-bottom: 28px;
+}
+
+/* ── Title block ── */
+.splash-title-block {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin-bottom: 28px;
+}
+
+.splash-title-swat {
+  font-family: var(--font-display);
+  font-size: 78px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #7a9048;
+  line-height: 1;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.splash-title-sep {
+  width: 2px;
+  height: 60px;
+  background: #c4a050;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.splash-title-right {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.splash-title-main {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #e8e0d8;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.splash-title-sub {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  color: #9a9290;
+  text-transform: uppercase;
+}
+
+.splash-divider-bottom {
+  width: 100%;
+  height: 1px;
+  background: rgba(255,255,255,0.15);
+  margin-bottom: 20px;
+}
+
+/* ── Meta row ── */
+.splash-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 36px;
+}
+
+.splash-restricted-inline {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #eb4535;
+  border: 1px solid rgba(235,69,53,0.45);
+  padding: 4px 12px;
+  background: rgba(235,69,53,0.12);
+}
+
+.splash-version-inline {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  color: #787878;
+  text-transform: uppercase;
+}
+
+/* ── CTA ── */
+.splash-cta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  color: #9a9490;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+/* ── Buttons ── */
+.splash-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.splash-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 12px;
+  background: #303234;
+  border: 1px solid #444648;
+  cursor: pointer;
+  transition: background 0.13s ease, border-color 0.13s ease;
+  text-align: left;
+  border-radius: 2px;
+  width: 100%;
+}
+
+.splash-btn:hover {
+  background: #383a3c;
+  border-color: #606266;
+}
+
+.splash-btn-pre  { border-left: 3px solid #c4a050; }
+.splash-btn-post { border-left: 3px solid #b83228; }
+
+.splash-btn-pre:hover  { border-left-color: #d4b060; }
+.splash-btn-post:hover { border-left-color: #cc3c30; }
+
+.splash-btn-label {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.splash-btn-desc {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  color: #a0a09a;
+  flex: 1;
+}
+
+.splash-btn-arrow {
+  font-size: 11px;
+  color: #606060;
+  flex-shrink: 0;
+  transition: color 0.13s, transform 0.13s;
+}
+
+.splash-btn:hover .splash-btn-arrow {
+  color: #a0a0a0;
+  transform: translateX(3px);
+}
+
+@media (max-width: 520px) {
+  .splash-title-swat { font-size: 56px; }
+  .splash-title-main { font-size: 20px; }
+  .splash-btns { grid-template-columns: 1fr; }
+}
+
+/* ─── APP SHELL ──────────────────────────────────────────────────────────── */
+#app { display: none; }
+
+/* ─── PAGE CHROME ────────────────────────────────────────────────────────── */
+.page-chrome {
+  background: var(--ink);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.chrome-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 var(--s6);
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s4);
+}
+
+.chrome-left {
+  display: flex;
+  align-items: center;
+  gap: var(--s5);
+  min-width: 0;
+}
+.chrome-emblem {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(196,160,80,0.2);
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #28221a;
+}
+.chrome-emblem img {
+  width: 100%; height: 100%; object-fit: cover;
+  mix-blend-mode: screen; filter: brightness(0.85);
+}
+.chrome-org {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.75);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.chrome-sep {
+  width: 1px; height: 18px;
+  background: rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+.chrome-mode {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border: 1px solid;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.chrome-mode-pre  { color: rgba(196,160,80,0.8); border-color: rgba(196,160,80,0.2); }
+.chrome-mode-post { color: rgba(184,50,40,0.8); border-color: rgba(184,50,40,0.25); }
+
+.chrome-right {
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+  flex-shrink: 0;
+}
+.chrome-restricted {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  color: rgba(220,80,70,0.9);
+  text-transform: uppercase;
+  display: none;
+}
+@media (min-width: 600px) { .chrome-restricted { display: block; } }
+
+.chrome-back {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.4);
+  padding: var(--s2) var(--s3);
+  cursor: pointer;
+  transition: all 0.15s;
+  border-radius: var(--r);
+  white-space: nowrap;
+}
+.chrome-back:hover { border-color: rgba(255,255,255,0.25); color: rgba(255,255,255,0.7); }
+
+/* ─── SHOT NUMBER BAR ────────────────────────────────────────────────────── */
+.shot-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--rule);
+  border-top: 1px solid var(--rule);
+}
+.shot-bar-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--s4) var(--s6);
+  display: flex;
+  align-items: baseline;
+  gap: var(--s3);
+}
+.shot-bar-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  color: var(--ink-4);
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.shot-bar-value {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  line-height: 1;
+  min-width: 200px;
+}
+.shot-bar-value.empty {
+  color: var(--rule-dark);
+  font-weight: 400;
+  font-size: 22px;
+}
+.shot-bar-divider { flex: 1; }
+.shot-bar-meta {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 400;
+  color: var(--ink-4);
+  letter-spacing: 0.08em;
+  text-align: right;
+}
+
+/* ─── FORM WRAPPER ───────────────────────────────────────────────────────── */
+.form-wrap {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--s5) var(--s6) var(--s12);
+}
+
+/* ─── CARD / SECTION ─────────────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--s3);
+  overflow: hidden;
+}
+
+.card-head {
+  background: var(--header-bg);
+  padding: 10px var(--s5);
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  border-bottom: 2px solid var(--gold);
+}
+.card-num {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 2px 8px;
+  border-radius: 2px;
+  min-width: 32px;
+  text-align: center;
+}
+.card-title {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: rgba(255,255,255,0.75);
+  text-transform: uppercase;
+}
+
+.card-body { padding: var(--s5); }
+
+/* ─── FIELD GROUP ROWS ───────────────────────────────────────────────────── */
+.row { display: grid; gap: var(--s4); margin-bottom: var(--s4); }
+.row:last-child { margin-bottom: 0; }
+.row-2  { grid-template-columns: 1fr 1fr; }
+.row-3  { grid-template-columns: 1fr 1fr 1fr; }
+.row-4  { grid-template-columns: 1fr 1fr 1fr 1fr; }
+.row-13 { grid-template-columns: 1fr 3fr; }
+.row-21 { grid-template-columns: 2fr 1fr; }
+
+/* ─── FIELD ──────────────────────────────────────────────────────────────── */
+.field { display: flex; flex-direction: column; gap: var(--s1); }
+
+.field-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: var(--s1);
+}
+.req { color: var(--danger-lt); }
+.opt {
+  font-size: 8px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: var(--ink-4);
+  background: var(--surface-3);
+  border: 1px solid var(--rule-dark);
+  padding: 1px 5px;
+  border-radius: 2px;
+}
+
+input[type=text],
+input[type=date],
+input[type=time],
+input[type=number],
+select,
+textarea {
+  font-family: var(--font-body);
+  font-size: var(--t-base);
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--rule-dark);
+  border-radius: var(--r);
+  padding: 9px 11px;
+  width: 100%;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  line-height: 1.4;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--gold-lt);
+  box-shadow: 0 0 0 3px rgba(196,160,80,0.1);
+}
+input[readonly], input[disabled] {
+  background: var(--surface-3);
+  color: var(--ink-3);
+  cursor: default;
+  border-color: var(--rule);
+}
+select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23706860' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 11px center;
+  padding-right: 30px;
+  height: auto;
+  overflow: hidden;
+  -webkit-appearance: none;
+  appearance: none;
+}
+select option { background: var(--surface); color: var(--ink); }
+select optgroup {
+  background: var(--surface-2);
+  color: var(--ink-3);
+  font-style: normal;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 0;
+}
+select optgroup option {
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 400;
+  font-size: var(--t-base);
+  text-transform: none;
+  letter-spacing: 0;
+  padding-left: 8px;
+}
+select option:disabled {
+  color: var(--ink-3);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  background: var(--surface-2);
+}
+textarea { resize: vertical; min-height: 80px; line-height: 1.55; }
+
+/* Placeholder */
+::placeholder { color: var(--ink-4); font-weight: 300; }
+
+/* ─── TOGGLE PAIR ────────────────────────────────────────────────────────── */
+.toggle-pair {
+  display: flex;
+  border: 1px solid var(--rule-dark);
+  border-radius: var(--r);
+  overflow: hidden;
+  height: 38px;
+}
+.tog-btn {
+  flex: 1;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--surface);
+  border: none;
+  border-right: 1px solid var(--rule-dark);
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: all 0.15s;
+  padding: 0;
+}
+.tog-btn:last-child { border-right: none; }
+.tog-btn:hover { background: var(--surface-3); color: var(--ink); }
+
+.tog-btn.active-neutral  { background: var(--ink); color: #fff; }
+.tog-btn.active-danger   { background: var(--danger); color: #fff; }
+.tog-btn.active-positive { background: var(--header-bg); color: rgba(255,255,255,0.85); }
+.tog-btn.active-warn     { background: var(--ink-2); color: rgba(255,255,255,0.8); }
+
+/* ─── EXPLOSIVE TABLE ────────────────────────────────────────────────────── */
+.exp-table-wrap { overflow-x: auto; margin-bottom: var(--s4); }
+.exp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-sm);
+  min-width: 540px;
+}
+.exp-table thead th {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  background: var(--surface-3);
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--rule-dark);
+  border-top: 1px solid var(--rule);
+  white-space: nowrap;
+}
+.exp-table tbody tr { border-bottom: 1px solid var(--rule); }
+.exp-table tbody tr:last-child { border-bottom: none; }
+.exp-table tbody tr:hover td { background: #f0f3f5; }
+.exp-table td { padding: 4px 3px; vertical-align: middle; }
+.exp-table td.label-cell {
+  padding: 4px 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ink-2);
+  white-space: nowrap;
+  width: 100px;
+}
+.exp-table td input, .exp-table td select {
+  border: 1px solid transparent;
+  border-radius: 2px;
+  background: transparent;
+  padding: 5px 8px;
+  font-size: 12px;
+  width: 100%;
+  box-shadow: none;
+}
+.exp-table td input:hover, .exp-table td select:hover {
+  border-color: var(--rule-dark);
+  background: var(--surface);
+}
+.exp-table td input:focus, .exp-table td select:focus {
+  border-color: var(--gold-lt);
+  background: var(--surface);
+  box-shadow: 0 0 0 2px rgba(196,160,80,0.1);
+}
+.exp-table td input[type=number] { text-align: right; }
+.grains-cell {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  text-align: right;
+  padding-right: 12px;
+  white-space: nowrap;
+}
+.muted-cell {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ink-4);
+  padding: 4px 8px;
+  white-space: nowrap;
+}
+.rm-btn {
+  background: none;
+  border: none;
+  color: var(--rule-dark);
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 14px;
+  transition: color 0.15s;
+  line-height: 1;
+  display: block;
+}
+.rm-btn:hover { color: var(--danger-lt); }
+
+.add-row {
+  display: flex;
+  gap: var(--s2);
+  margin-bottom: var(--s5);
+}
+.add-btn {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--surface);
+  border: 1px dashed var(--rule-dark);
+  color: var(--ink-3);
+  padding: 7px var(--s4);
+  cursor: pointer;
+  border-radius: var(--r);
+  transition: all 0.15s;
+  flex: 1;
+}
+.add-btn:hover {
+  border-color: var(--gold-lt);
+  color: var(--gold);
+  background: var(--gold-bg);
+}
+
+/* ─── CALC CHAIN ─────────────────────────────────────────────────────────── */
+.calc-chain {
+  background: var(--surface-3);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--ink-2);
+  border-radius: 0 var(--r) var(--r) 0;
+  padding: var(--s4) var(--s5);
+  margin-bottom: var(--s4);
+}
+.calc-chain-title {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  color: var(--ink-4);
+  text-transform: uppercase;
+  margin-bottom: var(--s3);
+}
+.calc-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--rule);
+  gap: var(--s4);
+}
+.calc-row:last-child { border-bottom: none; }
+.calc-row-label {
+  font-family: var(--font-body);
+  font-size: var(--t-sm);
+  font-weight: 500;
+  color: var(--ink-2);
+  flex: 1;
+}
+.calc-row-formula {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ink-4);
+  flex: 1;
+  text-align: center;
+}
+.calc-row-value {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  text-align: right;
+  min-width: 120px;
+}
+.calc-row-value.has-value { color: var(--gold); }
+
+/* ─── CONFIRMED CALCS BANNER ─────────────────────────────────────────────── */
+.confirmed-banner {
+  display: none;
+  background: var(--ink);
+  border-radius: var(--r);
+  padding: var(--s5);
+  margin-bottom: var(--s4);
+  position: relative;
+}
+.confirmed-banner::before {
+  content: 'CONFIRMED';
+  position: absolute;
+  top: -9px;
+  left: var(--s4);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: rgba(196,160,80,0.8);
+  background: var(--surface);
+  padding: 0 8px;
+  border: 1px solid var(--rule-dark);
+  border-radius: 2px;
+}
+.confirmed-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: var(--s3);
+}
+.confirmed-item {
+  text-align: center;
+  padding: var(--s4) var(--s3);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--r);
+}
+.confirmed-label {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  margin-bottom: var(--s2);
+}
+.confirmed-value {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+.confirmed-unit {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: rgba(255,255,255,0.35);
+  margin-top: 3px;
+}
+.confirmed-roundup {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(196,160,80,0.75);
+  margin-top: var(--s2);
+}
+
+/* ─── K FACTOR & RESULTS ─────────────────────────────────────────────────── */
+.confirm-btn {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: var(--surface);
+  border: 1.5px solid var(--ink-2);
+  color: var(--ink);
+  padding: 12px var(--s5);
+  cursor: pointer;
+  width: 100%;
+  border-radius: var(--r);
+  transition: all 0.18s;
+  margin-top: var(--s4);
+}
+.confirm-btn:hover {
+  background: var(--ink);
+  color: #fff;
+  border-color: var(--ink);
+}
+
+/* ─── NOTES / CALLOUT ────────────────────────────────────────────────────── */
+.callout {
+  display: flex;
+  gap: var(--s3);
+  padding: var(--s3) var(--s4);
+  border-radius: var(--r);
+  margin-top: var(--s3);
+}
+.callout-warn {
+  background: #fef9ec;
+  border: 1px solid #e8d070;
+  border-left: 3px solid #c0a030;
+}
+.callout-danger {
+  background: var(--danger-bg);
+  border: 1px solid rgba(184,50,40,0.2);
+  border-left: 3px solid var(--danger-lt);
+}
+.callout-info {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--ink-3);
+}
+.callout-icon {
+  font-size: 12px;
+  flex-shrink: 0;
+  padding-top: 1px;
+}
+.callout-text {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ink-2);
+  line-height: 1.55;
+  letter-spacing: 0.02em;
+}
+
+/* ─── OVP SECTION ────────────────────────────────────────────────────────── */
+.ovp-section {
+  border-top: 1px solid var(--rule);
+  margin-top: var(--s5);
+  padding-top: var(--s5);
+}
+.ovp-header {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  margin-bottom: var(--s4);
+}
+.ovp-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  color: var(--ink-3);
+  text-transform: uppercase;
+}
+
+/* ─── FAILURE PANEL ──────────────────────────────────────────────────────── */
+.failure-panel {
+  display: none;
+  background: #fdf3f2;
+  border: 1px solid rgba(184,50,40,0.18);
+  border-left: 3px solid var(--danger-lt);
+  border-radius: 0 var(--r) var(--r) 0;
+  padding: var(--s4) var(--s5);
+  margin-top: var(--s4);
+}
+.failure-panel-title {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: var(--danger-lt);
+  text-transform: uppercase;
+  margin-bottom: var(--s4);
+}
+
+/* ─── PHOTO UPLOAD ───────────────────────────────────────────────────────── */
+.photo-upload-wrap {
+  border: 1.5px dashed var(--rule-dark);
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  overflow: hidden;
+  background: var(--surface);
+  min-height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.photo-upload-wrap:hover {
+  border-color: var(--gold-lt);
+  background: var(--gold-bg);
+}
+.photo-upload-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s1);
+  padding: var(--s5) var(--s6);
+  text-align: center;
+  pointer-events: none;
+}
+.photo-upload-icon { color: var(--ink-4); }
+.photo-upload-label {
+  font-family: var(--font-body);
+  font-size: var(--t-sm);
+  font-weight: 500;
+  color: var(--ink-3);
+}
+.photo-upload-hint {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--ink-4);
+  letter-spacing: 0.06em;
+}
+.photo-preview-wrap {
+  width: 100%;
+  position: relative;
+  max-height: 260px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ink);
+}
+.photo-preview-wrap img {
+  width: 100%;
+  max-height: 260px;
+  object-fit: contain;
+  display: block;
+}
+.photo-remove-btn {
+  position: absolute;
+  top: var(--s2);
+  right: var(--s2);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.photo-remove-btn:hover { background: var(--danger-lt); }
+
+.ref-strip {
+  display: flex;
+  align-items: center;
+  gap: var(--s5);
+  margin-top: var(--s4);
+  padding: var(--s4) var(--s5);
+  background: var(--surface-3);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--gold-lt);
+  border-radius: 0 var(--r) var(--r) 0;
+  flex-wrap: wrap;
+}
+.ref-strip-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ref-strip-charge { flex: 1; min-width: 180px; }
+.ref-strip-label {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  color: var(--ink-4);
+  text-transform: uppercase;
+}
+.ref-strip-value {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+}
+.ref-strip-divider {
+  width: 1px;
+  height: 36px;
+  background: var(--rule-dark);
+  flex-shrink: 0;
+}
+.ref-strip-note {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--ink-4);
+  letter-spacing: 0.04em;
+  margin-left: auto;
+  text-align: right;
+  font-style: italic;
+  align-self: center;
+}
+@media (max-width: 600px) {
+  .ref-strip { flex-direction: column; align-items: flex-start; }
+  .ref-strip-divider { width: 36px; height: 1px; }
+  .ref-strip-note { margin-left: 0; text-align: left; }
+}
+
+/* ─── CHECKBOX ───────────────────────────────────────────────────────────── */
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: 9px 11px;
+  border: 1px solid var(--rule-dark);
+  border-radius: var(--r);
+  background: var(--surface);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.checkbox-row:hover { background: var(--surface-2); }
+.checkbox-row input[type=checkbox] {
+  width: 15px; height: 15px;
+  accent-color: var(--gold);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.checkbox-row label {
+  font-family: var(--font-body);
+  font-size: var(--t-base);
+  color: var(--ink-2);
+  cursor: pointer;
+  font-weight: 400;
+}
+
+/* ─── SIGNATURE / SUBMIT ─────────────────────────────────────────────────── */
+.submit-card {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--s12);
+}
+.submit-card-head {
+  padding: 10px var(--s5);
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.submit-card-head-pre  { border-top: 3px solid var(--ink); }
+.submit-card-head-post { border-top: 3px solid var(--danger-lt); }
+.submit-card-title {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: var(--ink-3);
+  text-transform: uppercase;
+}
+.submit-card-body { padding: var(--s5); }
+
+.generate-btn {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 15px var(--s6);
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  border-radius: var(--r);
+  transition: all 0.18s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s3);
+}
+.generate-btn-pre  { background: var(--ink); color: #fff; }
+.generate-btn-pre:hover  { background: var(--ink-2); box-shadow: 0 4px 16px rgba(26,22,18,0.3); }
+.generate-btn-post { background: var(--danger-lt); color: #fff; }
+.generate-btn-post:hover { background: var(--danger); box-shadow: 0 4px 16px rgba(139,28,20,0.3); }
+.generate-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.btn-icon { flex-shrink: 0; }
+
+/* ─── LOADING OVERLAY ────────────────────────────────────────────────────── */
+#overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(255,255,255,0.94);
+  z-index: 9999;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s4);
+  backdrop-filter: blur(4px);
+}
+#overlay.active { display: flex; }
+.overlay-spinner {
+  width: 40px; height: 40px;
+  border: 3px solid var(--rule-dark);
+  border-top-color: var(--ink);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.overlay-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  color: var(--ink-3);
+  text-transform: uppercase;
+}
+
+/* ─── PDF RENDER TARGET ──────────────────────────────────────────────────── */
+#pdf-render {
+  position: fixed;
+  left: -9999px; top: 0;
+  width: 794px;
+  background: #fff;
+  font-family: 'Arial', sans-serif;
+  font-size: 11px;
+  color: #111;
+  padding: 28px 28px 28px 28px;
+  display: none;
+}
+
+/* ─── RESPONSIVE ─────────────────────────────────────────────────────────── */
+@media (max-width: 660px) {
+  .row-2, .row-3, .row-4, .confirmed-grid { grid-template-columns: 1fr; }
+  .row-13, .row-21 { grid-template-columns: 1fr; }
+  .form-wrap { padding: var(--s4) var(--s4) var(--s12); }
+  .chrome-inner { padding: 0 var(--s4); }
+  .shot-bar-inner { padding: var(--s3) var(--s4); }
+  .add-row { flex-direction: column; }
+  .calc-row-formula { display: none; }
+}
+
+/* BLANK PRINT MODE */
+@media print {
+  body { background: #fff !important; }
+  #splash,
+  .page-chrome,
+  .chrome-back,
+  .confirm-btn,
+  .add-btn,
+  .rm-btn,
+  .photo-remove-btn,
+  .photo-upload-wrap button {
+    display: none !important;
+  }
+  #app { display: block !important; }
+  #form-pre, #form-post { display: block !important; }
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .card-head {
+    background: #000 !important;
+    color: #fff !important;
+    border-bottom: 2px solid #000 !important;
+  }
+  .card-title, .card-num,
+  .field-label, .shot-bar-label, .shot-bar-meta, .shot-bar-value,
+  .calc-chain-title, .calc-row-label, .calc-row-formula, .calc-row-value,
+  .confirmed-label, .confirmed-value, .confirmed-unit, .ovp-label {
+    color: #000 !important;
+  }
+  .card-num {
+    background: #fff !important;
+    border-color: #000 !important;
+  }
+  .shot-bar, .shot-bar-inner, .shot-bar-divider, .calc-chain, .confirmed-banner,
+  .callout, .failure-panel, .photo-upload-wrap, .ref-strip {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  input, textarea, select {
+    border: 1px solid #000 !important;
+    background: #fff !important;
+    color: #000 !important;
+    box-shadow: none !important;
+  }
+  .form-wrap { padding: 0 !important; }
+  .row { break-inside: avoid; page-break-inside: avoid; }
+  .chrome-mode, .chrome-restricted, .splash-btns { display: none !important; }
+}
+
+/* RESPONSIVE + MOBILE OPTIMIZATION */
+.autosave-banner {
+  display: none;
+  max-width: 900px;
+  margin: var(--s4) auto 0;
+  padding: 12px var(--s5);
+  background: #fff8e8;
+  border: 1px solid #d6c182;
+  border-left: 4px solid var(--gold);
+  border-radius: var(--r);
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s4);
+}
+.autosave-banner.show { display: flex; }
+.autosave-banner-text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-2);
+  letter-spacing: 0.03em;
+}
+.autosave-banner-actions {
+  display: flex;
+  gap: var(--s2);
+  flex-wrap: wrap;
+}
+.autosave-btn {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: #fff;
+  border: 1px solid var(--rule-dark);
+  color: var(--ink);
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: var(--r);
+}
+.autosave-btn:hover {
+  border-color: var(--gold-lt);
+  background: var(--gold-bg);
+}
+.chrome-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+input[type=text],
+input[type=date],
+input[type=time],
+input[type=number],
+select,
+textarea {
+  font-size: 16px;
+}
+
+@media (max-width: 900px) {
+  .chrome-inner,
+  .shot-bar-inner,
+  .form-wrap,
+  .autosave-banner {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .row-2, .row-3, .row-4, .row-13, .row-21,
+  .confirmed-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .chrome-inner {
+    height: auto;
+    min-height: 52px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .chrome-left,
+  .chrome-right,
+  .chrome-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .chrome-right {
+    gap: 8px;
+    justify-content: flex-start;
+  }
+
+  .shot-bar-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .shot-bar-value {
+    min-width: 0;
+    font-size: 28px;
+  }
+
+  .shot-bar-meta {
+    text-align: left;
+  }
+
+  .card-body {
+    padding: 16px;
+  }
+
+  .tog-btn,
+  .chrome-back,
+  .autosave-btn,
+  .add-btn,
+  .confirm-btn,
+  .rm-btn,
+  input,
+  textarea {
+    min-height: 44px;
+  }
+
+  .exp-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .exp-table {
+    min-width: 680px;
+  }
+
+  .splash-inner {
+    max-width: 100%;
+  }
+
+  
+
+  .form-wrap {
+    padding: 16px 12px 48px;
+  }
+
+  .autosave-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-left: 12px;
+    margin-right: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .chrome-org { font-size: 10px; }
+  .shot-bar-value { font-size: 24px; }
+  .card-title { letter-spacing: 0.12em; }
+}
+
+/* UX POLISH + SPACING HARDENING */
+
+
+body {
+  text-rendering: optimizeLegibility;
+}
+
+.page-chrome {
+  box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+}
+
+.chrome-inner {
+  min-height: 58px;
+}
+
+.chrome-actions .chrome-back {
+  min-width: 132px;
+  justify-content: center;
+}
+
+.shot-bar {
+  box-shadow: inset 0 -1px 0 rgba(0,0,0,0.02);
+}
+
+.shot-bar-inner {
+  padding-top: 18px;
+  padding-bottom: 18px;
+}
+
+.form-wrap {
+  padding-top: 24px;
+  padding-bottom: 56px;
+}
+
+.card {
+  margin-bottom: var(--card-gap);
+  border-radius: 6px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.card-head {
+  padding: 12px 20px;
+}
+
+.card-body {
+  padding: var(--section-pad);
+}
+
+.row {
+  gap: var(--row-gap);
+  margin-bottom: 18px;
+}
+
+.field {
+  gap: 6px;
+  min-width: 0;
+}
+
+.field + .field {
+  margin-left: 0;
+}
+
+.field-label {
+  line-height: 1.35;
+}
+
+input[type=text],
+input[type=date],
+input[type=time],
+input[type=number],
+textarea {
+  min-height: 46px;
+  padding: 11px 12px;
+  line-height: 1.45;
+}
+select {
+  padding: 11px 12px;
+  line-height: 1.45;
+}
+
+textarea {
+  min-height: 96px;
+}
+
+.toggle-pair {
+  min-height: 44px;
+}
+
+.tog-btn {
+  padding: 0 10px;
+}
+
+.add-row {
+  gap: 10px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.add-btn,
+.confirm-btn,
+.chrome-back,
+.autosave-btn {
+  min-height: 44px;
+}
+
+.exp-table-wrap {
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  overflow: auto;
+  background: var(--surface);
+  margin-bottom: 18px;
+}
+
+.exp-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.exp-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.exp-table td {
+  padding: 6px 6px;
+}
+
+.exp-table td.label-cell {
+  padding: 8px 10px;
+}
+
+.calc-chain,
+.confirmed-banner,
+.failure-panel,
+.callout {
+  margin-top: 14px;
+  margin-bottom: 0;
+}
+
+.callout + .callout,
+.calc-chain + .callout,
+.confirmed-banner + .callout {
+  margin-top: 12px;
+}
+
+.photo-upload-wrap {
+  min-height: 120px;
+}
+
+.autosave-banner {
+  margin-bottom: 8px;
+}
+
+@media (min-width: 769px) {
+  .row-2 > .field,
+  .row-3 > .field,
+  .row-4 > .field,
+  .row-13 > .field,
+  .row-21 > .field,
+  .confirmed-grid > * {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .form-wrap {
+    padding: 18px 12px 56px;
+  }
+
+  .card {
+    margin-bottom: 12px;
+  }
+
+  .card-body {
+    padding: 18px 14px;
+  }
+
+  .row {
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+
+  .chrome-actions {
+    width: 100%;
+  }
+
+  .chrome-actions .chrome-back {
+    flex: 1 1 160px;
+  }
+
+  .shot-bar-inner {
+    gap: 10px;
+  }
+
+  .exp-table-wrap {
+    margin-left: -2px;
+    margin-right: -2px;
+  }
+}
+
+@media (max-width: 480px) {
+  .chrome-inner {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .form-wrap {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .card-head {
+    padding: 10px 14px;
+  }
+
+  .card-body {
+    padding: 16px 12px;
+  }
+
+  input[type=text],
+  input[type=date],
+  input[type=time],
+  input[type=number],
+  select,
+  textarea {
+    padding: 11px 10px;
+  }
+}
+
+/* SPLASH REWORK */
+#splash {
+  justify-content: flex-start !important;
+  padding-top: 40px !important;
+}
+
+.splash-inner {
+  max-width: 720px !important;
+  width: 100% !important;
+}
+
+
+
+@media (max-width: 768px) {
+
+}
+
+/* RELIABILITY HARDENING */
+.chrome-status {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+.chrome-status-ready {
+  color: #275d37;
+  border-color: rgba(39,93,55,0.28);
+  background: rgba(39,93,55,0.10);
+}
+.chrome-status-warn {
+  color: #8a6a2a;
+  border-color: rgba(138,106,42,0.30);
+  background: rgba(196,160,80,0.12);
+}
+.chrome-status-neutral {
+  color: rgba(255,255,255,0.88);
+  border-color: rgba(255,255,255,0.28);
+  background: rgba(255,255,255,0.10);
+}
+@media (max-width: 768px) {
+  .chrome-status {
+    order: 2;
+  }
+}
+
+/* MAINTAINABILITY / VALIDATION STATUS */
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  border: 1px solid var(--rule-dark);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-2);
+}
+.status-chip-ready {
+  border-color: rgba(26,92,20,0.25);
+  background: rgba(26,92,20,0.08);
+  color: #1a5c14;
+}
+.status-chip-warn {
+  border-color: rgba(184,50,40,0.25);
+  background: rgba(184,50,40,0.08);
+  color: var(--danger-lt);
+}
+.status-chip-neutral {
+  color: var(--ink-3);
+}
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.85;
+}
+.shot-bar-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+@media (max-width: 768px) {
+  .shot-bar-meta {
+    justify-content: flex-start;
+  }
+}
+
+/* POST-BLAST SHOT REFERENCE POLISH */
+.ref-strip-value {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1;
+}
+.ref-strip-item {
+  min-width: 0;
+}
+.ref-strip-charge {
+  flex: 1;
+  min-width: 220px;
+}
+@media (max-width: 768px) {
+  .ref-strip {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .ref-strip-divider {
+    display: none;
+  }
+  .ref-strip-charge {
+    min-width: 0;
+  }
+}
+
+/* POST-BLAST MULTI-PHOTO GRID */
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s4);
+}
+@media (max-width: 768px) {
+  .photo-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.photo-upload-empty {
+  border: 2px dashed var(--rule-dark);
+  background: var(--surface-2);
+}
+.photo-upload-label {
+  font-weight: 700;
+}
+
+/* VALIDATION HARDENING */
+.field-invalid input,
+.field-invalid select,
+.field-invalid textarea,
+.field-invalid .toggle-pair {
+  border-color: var(--danger-lt) !important;
+  box-shadow: 0 0 0 3px rgba(184,50,40,0.10) !important;
+  background: #fff8f7 !important;
+}
+.field-error {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--danger-lt);
+  letter-spacing: 0.02em;
+  margin-top: 4px;
+}
+
+/* ─── CHROME EMBLEM (authoritative — replaces all prior emblem blocks) ─────── */
+/* Note: .splash-emblem targets no current HTML element; rules retained only  */
+/* for .chrome-emblem which exists in the app bar.                            */
+.chrome-emblem {
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  min-height: 30px;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  background: transparent;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.chrome-emblem img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  background: transparent;
+  border-radius: 0;
+  mix-blend-mode: screen;
+  filter: brightness(0.85);
+}
+
+/* ─── MAIN PAGE LIGHT THEME OVERRIDE ─────────────────────────────────────── */
+#splash {
+  background: #2c2c2c !important;
+}
+
+.chrome-left {
+  gap: 12px !important;
+}
+
+.chrome-org {
+  font-family: var(--font-display) !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.08em !important;
+  color: rgba(255,255,255,0.75) !important;
+  text-transform: uppercase !important;
+}
+
+
+/* STRONG PRINT CLEANUP: REMOVE PLACEHOLDER / EXAMPLE TEXT */
+@media print {
+  input::placeholder,
+  textarea::placeholder {
+    color: transparent !important;
+    opacity: 0 !important;
+  }
+
+  input::-webkit-input-placeholder,
+  textarea::-webkit-input-placeholder {
+    color: transparent !important;
+    opacity: 0 !important;
+  }
+
+  input::-moz-placeholder,
+  textarea::-moz-placeholder {
+    color: transparent !important;
+    opacity: 0 !important;
+  }
+
+  input:-ms-input-placeholder,
+  textarea:-ms-input-placeholder {
+    color: transparent !important;
+    opacity: 0 !important;
+  }
+
+  .photo-upload-hint,
+  .photo-upload-label,
+  .callout-text,
+  .callout-icon {
+    visibility: hidden !important;
+  }
+}
+
+
+/* ─── VALIDATION SUMMARY PANEL ───────────────────────────────────────────── */
+.validation-summary {
+  display: none;
+  background: var(--danger-bg);
+  border: 1.5px solid rgba(184,50,40,0.28);
+  border-left: 4px solid var(--danger-lt);
+  border-radius: var(--r);
+  padding: var(--s4) var(--s5);
+  margin-bottom: var(--s5);
+}
+.validation-summary.show { display: block; }
+.validation-summary-head {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--danger-lt);
+  margin-bottom: var(--s3);
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+}
+.validation-summary-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.validation-summary-list li {
+  font-family: var(--font-body);
+  font-size: var(--t-sm);
+  color: var(--danger);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s2);
+  line-height: 1.45;
+}
+.validation-summary-list li::before {
+  content: '→';
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--danger-lt);
+  flex-shrink: 0;
+  padding-top: 1px;
+}
+.validation-summary-item-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--danger);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  text-align: left;
+}
+.validation-summary-item-link:hover { color: var(--danger-lt); }
+.validation-summary-dismiss {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 1px solid rgba(184,50,40,0.3);
+  color: var(--danger-lt);
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: var(--r);
+  margin-top: var(--s3);
+  transition: all 0.15s;
+}
+.validation-summary-dismiss:hover {
+  background: rgba(184,50,40,0.08);
+  border-color: var(--danger-lt);
+}
+
+/* ─── FINAL VERSION LABEL ─────────────────────────────────────────────────── */
+/* FINAL VERSION LABEL */
+.version-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #6b7280;
+  margin-top: 10px;
+}
+.chrome-version {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  white-space: nowrap;
+}
+
+</style>
+
+</head>
+<body>
+
+<!-- ░░░ ARIA LIVE REGION — screen reader announcements ░░░ -->
+<div id="aria-announcer" aria-live="assertive" aria-atomic="true"
+     style="position:absolute;left:-9999px;top:0;width:1px;height:1px;overflow:hidden;"></div>
+
+<!-- ░░░ LOADING OVERLAY ░░░ -->
+<div id="overlay">
+  <div class="overlay-spinner"></div>
+  <div class="overlay-label" id="overlay-label">Preparing document…</div>
+</div>
+
+
+<!-- ═══════════════════════════════════ SPLASH ═══════════════════════════════════ -->
+<div id="splash">
+  <div class="splash-inner">
+
+    <div class="splash-dept-line">Anchorage Police Department</div>
+    <div class="splash-divider-top"></div>
+
+    <div class="splash-title-block">
+      <div class="splash-title-swat">SWAT</div>
+      <div class="splash-title-sep"></div>
+      <div class="splash-title-right">
+        <div class="splash-title-main">Explosive Breacher</div>
+        <div class="splash-title-sub">Program</div>
+      </div>
+    </div>
+
+    <div class="splash-divider-bottom"></div>
+
+    <div class="splash-meta-row">
+      <div class="splash-restricted-inline">Official Use Only</div>
+      <div class="splash-version-inline">v1.7</div>
+    </div>
+
+    <div class="splash-cta">Select report type to begin</div>
+
+    <div class="splash-btns">
+      <button class="splash-btn splash-btn-pre" onclick="loadForm('pre')">
+        <span class="splash-btn-label">Pre-Blast</span>
+        <span class="splash-btn-desc">Charge planning &amp; calculations</span>
+        <span class="splash-btn-arrow">→</span>
+      </button>
+      <button class="splash-btn splash-btn-post" onclick="loadForm('post')">
+        <span class="splash-btn-label">Post-Blast</span>
+        <span class="splash-btn-desc">Results &amp; after-action report</span>
+        <span class="splash-btn-arrow">→</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<div id="autosave-banner" class="autosave-banner">
+  <div class="autosave-banner-text" id="autosave-banner-text">Saved draft found on this device.</div>
+  <div class="autosave-banner-actions">
+    <button type="button" class="autosave-btn" onclick="restoreDraftFromBanner()">Restore Draft</button>
+    <button type="button" class="autosave-btn" onclick="discardDraftFromBanner()">Discard Draft</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ APP ═══════════════════════════════════ -->
+<div id="app">
+
+  <!-- Page Chrome -->
+  <div class="page-chrome">
+    <div class="chrome-inner">
+      <div class="chrome-left">
+        <span class="chrome-org">APD SWAT — Explosive Breacher</span>
+        <div class="chrome-sep"></div>
+        <div class="chrome-mode" id="chrome-mode">Pre-Blast</div>
+      </div>
+      <div class="chrome-right">
+  <div class="chrome-version">Version v1.7</div>
+        <span class="chrome-restricted">Official Use Only</span>
+        <span id="reliability-status" class="chrome-status chrome-status-warn">Checking status…</span>
+        <div class="chrome-actions">
+<button class="chrome-back" onclick="goBack()">← Menu</button>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shot Number Bar -->
+  <div class="shot-bar">
+    <div class="shot-bar-inner">
+      <span class="shot-bar-label">Shot</span>
+      <div class="shot-bar-value empty" id="shot-display">—</div>
+      <div class="shot-bar-divider"></div>
+      <div class="shot-bar-meta" id="shot-bar-date"></div>
+    </div>
+  </div>
+
+  <!-- ── PRE-BLAST FORM ── -->
+  <div id="form-pre" style="display:none;">
+  <div class="form-wrap">
+
+    <!-- 01 · Identification -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-num">01</span>
+        <span class="card-title">Identification &amp; Classification</span>
+      </div>
+      <div class="card-body">
+        <div class="row row-2">
+          <div class="field">
+            <div class="field-label">Shot Number <span class="req">*</span></div>
+            <input type="text" id="pre-shot" placeholder="APD-2026-001" maxlength="50" oninput="onShotInput(this.value,'pre')">
+          </div>
+          <div class="field">
+            <div class="field-label">Date <span class="req">*</span></div>
+            <input type="date" id="pre-date" onchange="onDateInput()">
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <div class="field-label">Location / Address <span class="req">*</span></div>
+            <input type="text" id="pre-loc" placeholder="Full address or site description" maxlength="200">
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <div class="field-label">Classification <span class="req">*</span></div>
+            <div class="toggle-pair">
+              <button class="tog-btn" id="tog-train" onclick="setTog('class','training')">Training</button>
+              <button class="tog-btn" id="tog-ops"   onclick="setTog('class','operational')">Operational</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 02 · Personnel -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-num">02</span>
+        <span class="card-title">Personnel</span>
+      </div>
+      <div class="card-body">
+        <div class="row row-2">
+          <div class="field">
+            <div class="field-label">Charge Built By <span class="req">*</span></div>
+            <input type="text" id="pre-built-by" placeholder="Name / Badge #" maxlength="100">
+          </div>
+          <div class="field">
+            <div class="field-label">Team Leader <span class="opt">Optional</span></div>
+            <input type="text" id="pre-supervisor" placeholder="Name / Badge #" maxlength="100">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 03 · Charge Information -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-num">03</span>
+        <span class="card-title">Charge Information</span>
+      </div>
+      <div class="card-body">
+        <div class="row row-2">
+          <div class="field">
+            <div class="field-label">Type of Charge <span class="req">*</span></div>
+            <select id="pre-charge-type-select" onchange="syncPreChargeTypeFromSelect()">
+              <option value="">— Select Preset or Enter Custom Below —</option>
+              <option>Blasting Strip Charge</option>
+              <option>Blasting Hinge Charge</option>
+              <option>Blasting T-Charge</option>
+              <option>Blasting Rollup</option>
+              <option>Blasting Steel Security Door Charge</option>
+              <option>Blasting C Charge</option>
+              <option>Blasting Hollow Cinderblock View Port Charge - Tamped with Water</option>
+              <option>Blasting Glass Window Charge</option>
+              <option>Rubber or Polyethylene Pushing Strip Charge</option>
+              <option>Rubber Pushing Hinge Charge</option>
+              <option>Rubber Pushing Hinge Charge Tamped with Water or Polypropylene Glycol</option>
+              <option>Vertical Rubber Pushing Horizontal Blasting T Charge</option>
+              <option>Rubber or Polyethylene Pushing Sliding Hinge Charge (MRDC)</option>
+              <option>Rubber Pushing Garage Door Charge</option>
+              <option>Rubber Pushing Super Slap Charge Tamped with Water/Glycol</option>
+              <option>Water Impulse Steel Door Charge</option>
+              <option>Porting Charge</option>
+              <option>Interior / Exterior Soft Wall Entry Port Charge</option>
+              <option>Fracture Charge</option>
+            </select>
+            <input type="text" id="pre-charge-type" placeholder="Select a preset above or enter a custom charge type" oninput="syncPreChargeTypeSelectFromInput()" style="margin-top:8px;">
+          </div>
+          <div class="field">
+            <div class="field-label">Method of Adhesion</div>
+            <input type="text" id="pre-adhesion" placeholder="e.g. Speed tape, Friction tape…">
+          </div>
+        </div>
+        <div class="row row-2">
+          <div class="field">
+            <div class="field-label">Priming Method <span class="req">*</span></div>
+            <select id="pre-priming-method">
+              <option value="">— Select —</option>
+              <option>Direct</option>
+              <option>Remote / Extended</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <div class="field-label">Priming System <span class="req">*</span></div>
+            <select id="pre-priming-sys" onchange="togglePrimingOther()">
+              <option value="">— Select —</option>
+              <option>Non-Electric (Shock Tube)</option>
+              <option>Electric</option>
+              <option>Electronic (Remote)</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="row row-2" id="priming-other-row" style="display:none;">
+          <div class="field">
+            <div class="field-label">Specify Priming System</div>
+            <input type="text" id="pre-priming-other" placeholder="Describe system…">
+          </div>
+          <div></div>
+        </div>
+        <div class="row row-2">
+          <div class="field">
+            <div class="field-label">Prop Stick</div>
+            <div class="toggle-pair">
+              <button class="tog-btn" id="prop-yes" onclick="setTog('prop','yes')">Yes</button>
+              <button class="tog-btn" id="prop-no"  onclick="setTog('prop','no')">No</button>
+            </div>
+          </div>
+          <div class="field" id="prop-type-wrap" style="display:none;">
+            <div class="field-label">Prop Stick Type</div>
+            <input type="text" id="pre-prop-type" placeholder="Describe…">
+          </div>
+        </div>
+        <div class="row row-2">
+          <div class="field">
+            <div class="field-label">Frag Zone Distance <span class="opt">Auto</span></div>
+            <input type="text" id="pre-frag-calc" readonly placeholder="Auto-calculated">
+          </div>
+          <div class="field">
+            <div class="field-label">Frag Zone Round Up <span class="opt">Auto</span></div>
+            <input type="text" id="pre-frag-round" readonly placeholder="Auto-calculated">
+          </div>
+        </div>
+        <div class="callout callout-warn" style="margin-top:0;margin-bottom:var(--s4);">
+          <div class="callout-icon">⚠</div>
+          <div class="callout-text">Frag Zone = K328 × ∛(LBS TNT) — accounts for fragmentation hazard from detonation.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 04 · Charge Construction -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-num">04</span>
+        <span class="card-title">Charge Construction</span>
+      </div>
+      <div class="card-body">
+        <div class="row row-2">
+          <div class="field">
+            <div class="field-label">Base Material <span class="req">*</span></div>
+            <input type="text" id="pre-base-material" placeholder="e.g. duct tape, hydrogel, cardboard">
+          </div>
+          <div class="field">
+            <div class="field-label">Charge Style <span class="req">*</span></div>
+            <input type="text" id="pre-charge-style" placeholder="e.g. roll-up, linear, porting">
+          </div>
+        </div>
+
+        <div class="row row-2">
+          <div class="field">
+            <div class="field-label">Det Cord Used <span class="req">*</span></div>
+            <input type="text" id="pre-detcord" placeholder="e.g. 50 grain, 25 grain layered, dual strand">
+          </div>
+          <div class="field">
+            <div class="field-label">Initiation Method</div>
+            <input type="text" id="pre-initiation" placeholder="e.g. dual cap, non-electric, electric">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <div class="field-label">Construction Notes <span class="req">*</span></div>
+            <textarea id="pre-construction-notes" rows="4" placeholder="Describe how the charge was built. Example: hydrogel base with 50 grain det cord laid linear, secured with duct tape, reinforced corners, primed on the left side."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 05 · Explosive Calculations -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-num">05</span>
+        <span class="card-title">Explosive Calculations</span>
+      </div>
+      <div class="card-body">
+
+        <!-- Confirmed summary -->
+        <div class="confirmed-banner" id="confirmed-banner">
+          <div class="confirmed-grid">
+            <div class="confirmed-item">
+              <div class="confirmed-label">Total Grains (NEW)</div>
+              <div class="confirmed-value" id="conf-gr">—</div>
+              <div class="confirmed-unit">GR</div>
+            </div>
+            <div class="confirmed-item">
+              <div class="confirmed-label">LBS TNT Equivalent</div>
+              <div class="confirmed-value" id="conf-tnt">—</div>
+              <div class="confirmed-unit">LBS TNT</div>
+            </div>
+            <div class="confirmed-item">
+              <div class="confirmed-label">Min Safe Distance</div>
+              <div class="confirmed-value" id="conf-msd">—</div>
+              <div class="confirmed-unit">ft (actual)</div>
+              <div class="confirmed-roundup" id="conf-msd-ru"></div>
+            </div>
+            <div class="confirmed-item">
+              <div class="confirmed-label">Frag Zone (K328)</div>
+              <div class="confirmed-value" id="conf-frag">—</div>
+              <div class="confirmed-unit">ft (actual)</div>
+              <div class="confirmed-roundup" id="conf-frag-ru"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Explosive inventory -->
+        <div class="exp-table-wrap">
+          <table class="exp-table">
+            <thead>
+              <tr>
+                <th style="width:100px;">Component</th>
+                <th style="width:110px;">Grain Wt</th>
+                <th style="width:90px;">Unit</th>
+                <th>Length / Qty</th>
+                <th style="width:90px;text-align:right;padding-right:12px;">Grains</th>
+                <th style="width:32px;"></th>
+              </tr>
+            </thead>
+            <tbody id="exp-body"></tbody>
+          </table>
+        </div>
+
+        <div class="add-row">
+          <button class="add-btn" onclick="addExpRow('detcord')">+ Det Cord</button>
+          <button class="add-btn" onclick="addExpRow('cap')">+ Blasting Cap</button>
+          <button class="add-btn" onclick="addExpRow('booster')">+ Booster</button>
+        </div>
+
+        <!-- Calc chain -->
+        <div class="calc-chain">
+          <div class="calc-chain-title">Calculation Chain</div>
+          <div class="calc-row">
+            <div class="calc-row-label">Total Grains</div>
+            <div class="calc-row-formula">Sum of all entries</div>
+            <div class="calc-row-value" id="ch-gr">—</div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-row-label">Total LBS</div>
+            <div class="calc-row-formula">Grains ÷ 7,000</div>
+            <div class="calc-row-value" id="ch-lbs">—</div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-row-label">LBS TNT Equivalent</div>
+            <div class="calc-row-formula">LBS × 1.66 (RE Factor)</div>
+            <div class="calc-row-value" id="ch-tnt">—</div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-row-label">MSD</div>
+            <div class="calc-row-formula">K × ∛(LBS TNT)</div>
+            <div class="calc-row-value" id="ch-msd">—</div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-row-label">Frag Zone</div>
+            <div class="calc-row-formula">328 × ∛(LBS TNT)</div>
+            <div class="calc-row-value" id="ch-frag">—</div>
+          </div>
+        </div>
+
+        <!-- K factor & MSD -->
+        <div class="row row-3">
+          <div class="field">
+            <div class="field-label">K Factor <span class="req">*</span></div>
+            <select id="pre-kfactor" onchange="recalc()">
+              <option value="">— Select —</option>
+              <option value="18">18</option>
+              <option value="24">24</option>
+              <option value="30">30</option>
+            </select>
+          </div>
+          <div class="field">
+            <div class="field-label">MSD Calculated</div>
+            <input type="text" id="pre-msd-calc" readonly placeholder="Auto">
+          </div>
+          <div class="field">
+            <div class="field-label">MSD Round Up</div>
+            <input type="text" id="pre-msd-round" readonly placeholder="Auto">
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-icon">ℹ</div>
+          <div class="callout-text">MSD figures do not account for reflective overpressure and colliding shock waves occurring as a result of explosive detonation in a confined environment.</div>
+        </div>
+
+        <!-- Interior overpressure -->
+        <div class="ovp-section">
+          <div class="ovp-header">
+            <div class="ovp-label">Interior Overpressure</div>
+            <span class="opt">Optional</span>
+          </div>
+          <div class="row row-3">
+            <div class="field">
+              <div class="field-label">Height (ft)</div>
+              <input type="number" id="pre-h" placeholder="0.000" step="0.001" oninput="calcOVP()">
+            </div>
+            <div class="field">
+              <div class="field-label">Length (ft)</div>
+              <input type="number" id="pre-l" placeholder="0.000" step="0.001" oninput="calcOVP()">
+            </div>
+            <div class="field">
+              <div class="field-label">Width (ft)</div>
+              <input type="number" id="pre-w" placeholder="0.000" step="0.001" oninput="calcOVP()">
+            </div>
+          </div>
+          <div class="row row-3">
+            <div class="field">
+              <div class="field-label">Volume (cu ft)</div>
+              <input type="text" id="pre-vol" readonly placeholder="Auto">
+            </div>
+            <div class="field">
+              <div class="field-label">PSI Calculated</div>
+              <input type="text" id="pre-psi-calc" readonly placeholder="Auto">
+            </div>
+            <div class="field">
+              <div class="field-label">PSI Round Up</div>
+              <input type="text" id="pre-psi-round" readonly placeholder="Auto">
+            </div>
+          </div>
+          <div class="callout callout-warn">
+            <div class="callout-icon">⚠</div>
+            <div class="callout-text">Maximum: 4 PSI exterior &nbsp;|&nbsp; 2 PSI interior</div>
+          </div>
+        </div>
+
+        <button class="confirm-btn" onclick="confirmCalcs()">✓ &nbsp; Confirm &amp; Lock Calculations</button>
+      </div>
+    </div>
+
+    <!-- 06 · Notes -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-num">06</span>
+        <span class="card-title">Pre-Blast Notes</span>
+      </div>
+      <div class="card-body">
+        <div class="field">
+          <div class="field-label">Pre-Blast Notes</div>
+          <textarea id="pre-notes" rows="4" placeholder="Additional pre-blast notes, observations, or planning considerations…"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- 07 · Charge Construction Photos -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-num">07</span>
+        <span class="card-title">Charge Construction Photos <span style="font-weight:400;letter-spacing:0.08em;font-size:9px;color:rgba(255,255,255,0.4);">Optional — Up To 2</span></span>
+      </div>
+      <div class="card-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--s4);">
+          <div class="photo-upload-wrap" id="photo-upload-wrap" role="button" tabindex="0"
+               onclick="document.getElementById('pre-photo-input').click()"
+               onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();document.getElementById('pre-photo-input').click();}">
+            <input type="file" id="pre-photo-input" accept="image/*" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none" onchange="handlePhotoUpload(event)">
+            <div class="photo-upload-empty" id="photo-upload-empty">
+              <div class="photo-upload-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              </div>
+              <div class="photo-upload-label">Photo 1 — Pre-Priming</div>
+              <div class="photo-upload-hint">JPG, PNG — embedded in PDF</div>
+            </div>
+            <div class="photo-preview-wrap" id="photo-preview-wrap" style="display:none;">
+              <img id="photo-preview-img" src="" alt="Charge photo 1">
+              <button class="photo-remove-btn" onclick="removePhoto(event)" title="Remove photo">×</button>
+            </div>
+          </div>
+          <div class="photo-upload-wrap" id="pre-photo2-wrap" role="button" tabindex="0"
+               onclick="document.getElementById('pre-photo2-input').click()"
+               onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();document.getElementById('pre-photo2-input').click();}">
+            <input type="file" id="pre-photo2-input" accept="image/*" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none" onchange="handlePrePhoto2Upload(event)">
+            <div class="photo-upload-empty" id="pre-photo2-empty">
+              <div class="photo-upload-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              </div>
+              <div class="photo-upload-label">Photo 2 — Post-Priming</div>
+              <div class="photo-upload-hint">JPG, PNG — embedded in PDF</div>
+            </div>
+            <div class="photo-preview-wrap" id="pre-photo2-preview" style="display:none;">
+              <img id="pre-photo2-img" src="" alt="Charge photo 2">
+              <button class="photo-remove-btn" onclick="removePrePhoto2(event)" title="Remove photo">×</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Signature -->
+    <div class="submit-card">
+      <div class="submit-card-head submit-card-head-pre">
+        <span class="submit-card-title">Authorization &amp; Signature</span>
+      </div>
+      <div class="submit-card-body">
+        <div class="row row-21">
+          <div class="field">
+            <div class="field-label">Typed Signature — Printed Name <span class="req">*</span></div>
+            <input type="text" id="pre-sig" placeholder="Full name (serves as electronic signature)" maxlength="100">
+          </div>
+          <div class="field">
+            <div class="field-label">Submission Timestamp</div>
+            <input type="text" id="pre-ts" readonly placeholder="Auto-generated">
+          </div>
+        </div>
+        <div id="pre-validation-summary" class="validation-summary" role="region" aria-label="Pre-blast form errors"></div>
+        <button class="generate-btn generate-btn-pre" onclick="genPDF('pre')">
+          <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+          Generate Pre-Blast PDF
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /form-wrap -->
+  </div><!-- /form-pre -->
+
+  <!-- ── POST-BLAST FORM ── -->
+  <div id="form-post" style="display:none;">
+  <div class="form-wrap">
+
+    <!-- 01 · Identification -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-num">01</span>
+        <span class="card-title">Identification &amp; Shot Reference</span>
+      </div>
+      <div class="card-body">
+        <div class="row row-3">
+          <div class="field">
+            <div class="field-label">Shot Number <span class="req">*</span></div>
+            <input type="text" id="post-shot" placeholder="APD-2026-001" maxlength="50" oninput="onShotInput(this.value,'post')">
+          </div>
+          <div class="field">
+            <div class="field-label">Date <span class="req">*</span></div>
+            <input type="date" id="post-date" onchange="onDateInput()">
+          </div>
+          <div class="field">
+            <div class="field-label">Time <span class="req">*</span></div>
+            <input type="time" id="post-time">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <div class="field-label">Location / Address <span class="req">*</span></div>
+            <input type="text" id="post-loc" placeholder="Location where shot was executed" maxlength="200">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <div class="field-label">Classification <span class="req">*</span></div>
+            <div class="toggle-pair">
+              <button class="tog-btn" id="post-tog-train" onclick="setTog('class','training')">Training</button>
+              <button class="tog-btn" id="post-tog-ops" onclick="setTog('class','operational')">Operational</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row row-3">
+          <div class="field">
+            <div class="field-label">Actual NEW (grains)</div>
+            <input type="number" id="post-actual-new" placeholder="Enter actual NEW in grains" step="0.001">
+          </div>
+          <div class="field">
+            <div class="field-label">LBS TNT Equivalent</div>
+            <input type="number" id="post-tnt-lbs" placeholder="Enter lbs TNT equivalent" step="0.001">
+          </div>
+          <div class="field">
+            <div class="field-label">Exterior MSD (ft)</div>
+            <input type="number" id="post-msd" placeholder="Enter exterior MSD" step="0.001">
+          </div>
+        </div>
+
+        <div class="ref-strip">
+          <div class="ref-strip-item">
+            <div class="ref-strip-label">Pre-Blast Shot #</div>
+            <div class="ref-strip-value" id="ref-shot-num">—</div>
+          </div>
+          <div class="ref-strip-divider"></div>
+          <div class="ref-strip-item ref-strip-charge">
+            <div class="ref-strip-label">Charge Type <span class="req">*</span></div>
+            <input type="text" id="ref-ct" placeholder="e.g. Linear, Strip, Roll-Up…" style="font-family:var(--font-display);font-size:18px;font-weight:700;letter-spacing:0.02em;border:none;border-bottom:2px solid var(--rule-dark);border-radius:0;background:transparent;padding:2px 0;width:100%;outline:none;color:var(--ink);" onfocus="this.style.borderBottomColor='var(--gold-lt)'" onblur="this.style.borderBottomColor='var(--rule-dark)'">
+          </div>
+          <div class="ref-strip-note">Attach Pre-Blast PDF to complete the record.</div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <div class="field-label">Charge Description <span class="req">*</span></div>
+            <textarea id="post-charge-desc" rows="3" placeholder="Describe the charge used — type, configuration, placement, adhesion method, priming…"></textarea>
+          </div>
+        </div>
+
+        <div class="row row-3">
+          <div class="field">
+            <div class="field-label">Primary Breacher <span class="req">*</span></div>
+            <input type="text" id="post-primary" placeholder="Name / Badge #" maxlength="100">
+          </div>
+          <div class="field">
+            <div class="field-label">Assistant Breacher <span class="req">*</span></div>
+            <input type="text" id="post-asst" placeholder="Name / Badge #" maxlength="100">
+          </div>
+          <div class="field">
+            <div class="field-label">Charge Placed By <span class="req">*</span></div>
+            <input type="text" id="post-placed-by" placeholder="Name / Badge #" maxlength="100">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 02 · Target -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-num">02</span>
+        <span class="card-title">Target</span>
+      </div>
+      <div class="card-body">
+        <div class="row row-2">
+          <div class="field">
+            <div class="field-label">Target Category <span class="req">*</span></div>
+            <select id="post-tgt-cat" onchange="updateTgtTypes()">
+              <option value="">— Select Category —</option>
+              <option>Doors — Exterior</option>
+              <option>Doors — Exterior Commercial</option>
+              <option>Doors — Interior</option>
+              <option>Barriers &amp; Gates</option>
+              <option>Walls</option>
+              <option>Vehicles</option>
+              <option>Infrastructure</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <div class="field-label">Target Type <span class="req">*</span></div>
+            <select id="post-tgt-type" onchange="checkTgtOther()">
+              <option value="">— Select Type —</option>
+            </select>
+          </div>
+        </div>
+        <div class="row row-2" id="tgt-other-row" style="display:none;">
+          <div class="field">
+            <div class="field-label">Specify Target</div>
+            <input type="text" id="post-tgt-other" placeholder="Describe target…">
+          </div>
+          <div></div>
+        </div>
+        <div class="row row-4">
+          <div class="field">
+            <div class="field-label">Material <span class="req">*</span></div>
+            <select id="post-material">
+              <option value="">— Select —</option>
+              <option disabled>── Wood ──</option>
+              <option>Wood — Solid Core</option>
+              <option>Wood — Hollow Core</option>
+              <option>Wood — Engineered / LVL</option>
+              <option>Wood Frame</option>
+              <option disabled>── Metal ──</option>
+              <option>Steel — Hollow</option>
+              <option>Steel — Solid</option>
+              <option>Steel — Reinforced</option>
+              <option>Aluminum</option>
+              <option>Wrought Iron</option>
+              <option disabled>── Masonry / Concrete ──</option>
+              <option>Concrete — Unreinforced</option>
+              <option>Concrete — Reinforced</option>
+              <option>CMU Block — Standard</option>
+              <option>CMU Block — Filled</option>
+              <option>Brick — Standard</option>
+              <option>Brick — Double</option>
+              <option disabled>── Other ──</option>
+              <option>Fiberglass</option>
+              <option>UHMWPE / Ballistic</option>
+              <option>Unknown</option>
+              <option>Other (describe in notes)</option>
+            </select>
+          </div>
+          <div class="field">
+            <div class="field-label">Thickness</div>
+            <select id="post-thickness">
+              <option value="">— Select —</option>
+              <option>1-3/8 in</option>
+              <option>1-3/4 in</option>
+              <option>2 in</option>
+              <option>3 in</option>
+              <option>4 in</option>
+              <option>6 in</option>
+              <option>8 in</option>
+              <option>12 in</option>
+              <option>Unknown</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <div class="field-label">Hinge Count / Type</div>
+            <select id="post-hinge">
+              <option value="">— Select —</option>
+              <option>2× Standard Butt</option>
+              <option>3× Standard Butt</option>
+              <option>4× Standard Butt</option>
+              <option>2× Heavy Duty Butt</option>
+              <option>3× Heavy Duty Butt</option>
+              <option>4× Heavy Duty Butt</option>
+              <option>2× Piano / Continuous</option>
+              <option>3× Piano / Continuous</option>
+              <option>Security — Non-Removable Pin</option>
+              <option>Weld-On</option>
+              <option>None / N/A</option>
+              <option>Unknown</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <div class="field-label">Lock / Mechanism</div>
+            <select id="post-lock">
+              <option value="">— Select —</option>
+              <option disabled>── Locks ──</option>
+              <option>Deadbolt — Single Cylinder</option>
+              <option>Deadbolt — Double Cylinder</option>
+              <option>Deadbolt — High Security</option>
+              <option>Knob Lock</option>
+              <option>Lever Handle Lock</option>
+              <option>Padlock — Standard</option>
+              <option>Padlock — High Security</option>
+              <option>Hasp and Padlock</option>
+              <option>Mortise Lock</option>
+              <option>Rim Lock</option>
+              <option disabled>── Access Control ──</option>
+              <option>Magnetic Lock (Mag-Lock)</option>
+              <option>Electric Strike</option>
+              <option>Electronic Keypad</option>
+              <option>Biometric</option>
+              <option disabled>── Other ──</option>
+              <option>Chain and Padlock</option>
+              <option>Bar / Barricade</option>
+              <option>Welded Shut</option>
+              <option>None / Unknown</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 03 · Weather -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-num">03</span>
+        <span class="card-title">Weather</span>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="field">
+            <div class="field-label">Environment <span class="req">*</span></div>
+            <div class="toggle-pair">
+              <button type="button" class="tog-btn" id="post-env-indoor" onclick="setTog('postenv','indoor')">Indoors</button>
+              <button type="button" class="tog-btn" id="post-env-outdoor" onclick="setTog('postenv','outdoor')">Outdoors</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row row-3">
+          <div class="field">
+            <div class="field-label">Temperature °F</div>
+            <input type="number" id="post-temp-f" placeholder="e.g. 42">
+          </div>
+          <div class="field">
+            <div class="field-label">Humidity % <span class="opt">If Known</span></div>
+            <input type="number" id="post-humidity" placeholder="e.g. 55">
+          </div>
+          <div class="field">
+            <div class="field-label">Weather Conditions</div>
+            <input type="text" id="post-weather-cond" placeholder="e.g. clear, snow, rain, windy">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 04 · Execution -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-num">04</span>
+        <span class="card-title">Initiation</span>
+      </div>
+      <div class="card-body">
+        <div class="row row-2">
+          <div class="field">
+            <div class="field-label">Detonated By <span class="req">*</span></div>
+            <input type="text" id="post-det-by" placeholder="Name / Badge #" maxlength="100">
+          </div>
+          <div class="field">
+            <div class="field-label">Charge Functioned as Designed <span class="req">*</span></div>
+            <div class="toggle-pair">
+              <button class="tog-btn" id="func-yes" onclick="setTog('func','yes')">Yes</button>
+              <button class="tog-btn" id="func-no"  onclick="setTog('func','no')">No</button>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <div class="field-label">Construction Photo Logged</div>
+            <div class="checkbox-row">
+              <input type="checkbox" id="post-photo">
+              <label for="post-photo">Construction photo attached to database record</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Failure panel -->
+        <div class="failure-panel" id="failure-panel">
+          <div class="failure-panel-title">⚠ &nbsp; Failure Analysis</div>
+          <div class="row">
+            <div class="field">
+              <div class="field-label">Failure Category <span class="req">*</span></div>
+              <select id="post-fail-cat">
+                <option value="">— Select —</option>
+                <option>Initiated but did not breach</option>
+                <option>Failed to initiate</option>
+                <option>Partial breach</option>
+                <option>Wrong target effect</option>
+                <option>Charge dislodged before detonation</option>
+                <option>Priming system failure</option>
+                <option>Other (specify in comments)</option>
+              </select>
+            </div>
+          </div>
+          <div class="row row-2">
+            <div class="field">
+              <div class="field-label">Secondary Attempt Made</div>
+              <div class="toggle-pair">
+                <button class="tog-btn" id="sec-yes" onclick="setTog('secondary','yes')">Yes</button>
+                <button class="tog-btn" id="sec-no"  onclick="setTog('secondary','no')">No</button>
+              </div>
+            </div>
+            <div class="field" id="sec-method-row" style="display:none;">
+              <div class="field-label">Secondary Method Used</div>
+              <input type="text" id="post-sec-method" placeholder="Describe method…">
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <div class="field-label">Corrective Action Taken</div>
+              <textarea id="post-corrective" rows="3" placeholder="Describe corrective actions…"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 05 · Post-Blast Results -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-num">05</span>
+        <span class="card-title">Post-Blast Results &amp; Comments</span>
+      </div>
+      <div class="card-body">
+        <div class="row row-2">
+          <div class="field">
+            <div class="field-label">Positive Breach?</div>
+            <select id="post-positive-breach">
+              <option value="">— Select —</option>
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+          </div>
+          <div class="field">
+            <div class="field-label">Desirable Results Inside the Target?</div>
+            <select id="post-desirable-inside">
+              <option value="">— Select —</option>
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+          </div>
+        </div>
+        <div class="row row-2">
+          <div class="field">
+            <div class="field-label">Desirable Results Outside the Target?</div>
+            <select id="post-desirable-outside">
+              <option value="">— Select —</option>
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+          </div>
+          <div class="field">
+            <div class="field-label">Hazardous Frag / Debris Inside the Target?</div>
+            <select id="post-hazard-inside">
+              <option value="">— Select —</option>
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+          </div>
+        </div>
+        <div class="row row-2">
+          <div class="field">
+            <div class="field-label">Hazardous Frag / Debris Outside the Target?</div>
+            <select id="post-hazard-outside">
+              <option value="">— Select —</option>
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+          </div>
+          <div></div>
+        </div>
+        <div class="field">
+          <div class="field-label">Post-Blast Results <span class="req">*</span></div>
+          <textarea id="post-notes" rows="6" placeholder="Detailed post-blast results, observations, target effects, anomalies, and lessons learned…"></textarea>
+        </div>
+      </div>
+    </div>
+
+<!-- 06 · Post-Blast Photos -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-num">06</span>
+        <span class="card-title">Post-Blast Photos</span>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="field">
+            <div class="field-label">Post-Blast Result Photos <span class="opt">Up To 4</span></div>
+            <div class="photo-grid">
+              <div id="post-photo-wrap-1" class="photo-upload-wrap" role="button" tabindex="0" onclick="triggerPostPhotoInput(event, 1)" onkeydown="triggerPostPhotoInputKey(event, 1)">
+                <input type="file" id="post-photo-1-input" accept="image/*" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none" onchange="handlePostPhotoUpload(event, 1)">
+                <div class="photo-upload-empty" id="post-photo-1-empty">
+                  <div class="photo-upload-label">Upload Photo 1</div>
+                  <div class="photo-upload-hint">Click to add image</div>
+                </div>
+                <div class="photo-preview-wrap" id="post-photo-1-preview" style="display:none;">
+                  <img id="post-photo-1-img" alt="Post-blast photo 1 preview">
+                  <button type="button" class="photo-remove-btn" onclick="removePostPhoto(event, 1)">×</button>
+                </div>
+              </div>
+
+              <div id="post-photo-wrap-2" class="photo-upload-wrap" role="button" tabindex="0" onclick="triggerPostPhotoInput(event, 2)" onkeydown="triggerPostPhotoInputKey(event, 2)">
+                <input type="file" id="post-photo-2-input" accept="image/*" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none" onchange="handlePostPhotoUpload(event, 2)">
+                <div class="photo-upload-empty" id="post-photo-2-empty">
+                  <div class="photo-upload-label">Upload Photo 2</div>
+                  <div class="photo-upload-hint">Click to add image</div>
+                </div>
+                <div class="photo-preview-wrap" id="post-photo-2-preview" style="display:none;">
+                  <img id="post-photo-2-img" alt="Post-blast photo 2 preview">
+                  <button type="button" class="photo-remove-btn" onclick="removePostPhoto(event, 2)">×</button>
+                </div>
+              </div>
+
+              <div id="post-photo-wrap-3" class="photo-upload-wrap" role="button" tabindex="0" onclick="triggerPostPhotoInput(event, 3)" onkeydown="triggerPostPhotoInputKey(event, 3)">
+                <input type="file" id="post-photo-3-input" accept="image/*" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none" onchange="handlePostPhotoUpload(event, 3)">
+                <div class="photo-upload-empty" id="post-photo-3-empty">
+                  <div class="photo-upload-label">Upload Photo 3</div>
+                  <div class="photo-upload-hint">Click to add image</div>
+                </div>
+                <div class="photo-preview-wrap" id="post-photo-3-preview" style="display:none;">
+                  <img id="post-photo-3-img" alt="Post-blast photo 3 preview">
+                  <button type="button" class="photo-remove-btn" onclick="removePostPhoto(event, 3)">×</button>
+                </div>
+              </div>
+
+              <div id="post-photo-wrap-4" class="photo-upload-wrap" role="button" tabindex="0" onclick="triggerPostPhotoInput(event, 4)" onkeydown="triggerPostPhotoInputKey(event, 4)">
+                <input type="file" id="post-photo-4-input" accept="image/*" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none" onchange="handlePostPhotoUpload(event, 4)">
+                <div class="photo-upload-empty" id="post-photo-4-empty">
+                  <div class="photo-upload-label">Upload Photo 4</div>
+                  <div class="photo-upload-hint">Click to add image</div>
+                </div>
+                <div class="photo-preview-wrap" id="post-photo-4-preview" style="display:none;">
+                  <img id="post-photo-4-img" alt="Post-blast photo 4 preview">
+                  <button type="button" class="photo-remove-btn" onclick="removePostPhoto(event, 4)">×</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+
+    <!-- Signature -->
+    <div class="submit-card">
+      <div class="submit-card-head submit-card-head-post">
+        <span class="submit-card-title">Authorization &amp; Signature</span>
+      </div>
+      <div class="submit-card-body">
+        <div class="row row-21">
+          <div class="field">
+            <div class="field-label">Typed Signature — Printed Name <span class="req">*</span></div>
+            <input type="text" id="post-sig" placeholder="Full name (serves as electronic signature)" maxlength="100">
+          </div>
+          <div class="field">
+            <div class="field-label">Submission Timestamp</div>
+            <input type="text" id="post-ts" readonly placeholder="Auto-generated">
+          </div>
+        </div>
+        <div id="post-validation-summary" class="validation-summary" role="region" aria-label="Post-blast form errors"></div>
+        <div style="display:flex;flex-direction:column;gap:var(--s3);">
+          <button class="generate-btn generate-btn-post" onclick="genPDF('post')">
+            <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            Generate Post-Blast PDF
+          </button>
+          <button class="generate-btn" style="background:var(--ink-2);color:#fff;" onclick="genSummaryPDF()">
+            <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+            Generate Shot Summary
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /form-wrap -->
+  </div><!-- /form-post -->
+
+</div><!-- /app -->
+
+<script>
+// ── CONSTANTS ──────────────────────────────────────────────────────────────
+// EMBLEM removed — logo not in use
+
+
+
+
+const TGT_TYPES = {
+  'Doors — Exterior': ['Exterior Wood — Solid Core','Exterior Wood — Hollow Core','Exterior Wood — Butcher Block','Exterior Steel','Exterior Fiberglass','Exterior Double Door','Exterior Sliding','Exterior Vault','Exterior Blast Door','Other (specify)'],
+  'Doors — Exterior Commercial': ['Commercial Steel — Hollow Metal','Commercial Steel — Reinforced','Commercial Aluminum Frame / Glass','Commercial Double — Aluminum Frame','Commercial Double — Steel','Commercial Storefront Sliding','Commercial Roll-Up / Overhead','Commercial Sectional Overhead','Commercial Fire Door','Commercial Vault Door','Other (specify)'],
+  'Doors — Interior': ['Interior Wood — Solid Core','Interior Wood — Hollow Core','Interior Steel','Interior Fiberglass','Interior Double Door','Interior Sliding','Other (specify)'],
+  'Barriers & Gates': ['Chain Link Gate','Steel Gate','Wooden Gate','Vehicle Gate','Blast Door','Jersey Barrier','Concrete Barrier','Bollard Array','Other (specify)'],
+  'Walls': ['Exterior — Wood Frame','Exterior — Brick/Masonry','Exterior — Concrete','Exterior — CMU Block','Interior — Wood Frame','Interior — Concrete','Interior — CMU Block','Reinforced Concrete','Other (specify)'],
+  'Vehicles': ['Car Door','Truck Door','Armored Vehicle','Aircraft Door','Boat Hull','Engine Block','Other (specify)'],
+  'Infrastructure': ['Roof — Wood Frame','Roof — Concrete','Window — Residential','Window — Commercial','Floor — Wood','Floor — Concrete','Padlock / Chain','Hinge Defeat','Locking Mechanism','Other (specify)'],
+  'Other': ['Other (specify)']
+};
+
+// ── STATE ──────────────────────────────────────────────────────────────────
+let mode = null;
+let preClassVal = null, postClassVal = null; // per-form classification state (replaces shared classVal)
+let propVal = null, funcVal = null, secVal = null;
+// classVal: computed alias — resolves to the active form's value; used by PDF gen and validation
+Object.defineProperty(window, 'classVal', {
+  get() { return mode === 'post' ? postClassVal : preClassVal; },
+  set(v) { if (mode === 'post') { postClassVal = v; } else { preClassVal = v; } },
+  configurable: true
+});
+let calcConfirmed = false;
+let totalGR = 0, lbsTNT = 0, msdVal = 0;
+let rowId = 0;
+let photoDataURL = null; // stores embedded charge photo
+
+// ── PHOTO UPLOAD ───────────────────────────────────────────────────────────
+// ── SHARED PHOTO UPLOAD UTILITY ────────────────────────────────────────────
+// Resizes and compresses any image file to a JPEG data URL, then calls
+// onSuccess(dataUrl) or onError(). All photo upload handlers delegate here.
+function _processImageFile(file, inputEl, onSuccess) {
+  if (!file) return;
+  if (!file.type || !file.type.startsWith('image/')) {
+    alert('Please select an image file.');
+    if (inputEl) inputEl.value = '';
+    return;
+  }
+
+  const MAX_DIM = 1800;
+  const QUALITY = 0.85;
+  let completed = false;
+
+  const reader = new FileReader();
+  reader.onload = function(loadEvent) {
+    const img = new Image();
+
+    img.onload = function() {
+      if (completed) return;
+      try {
+        let w = img.width, h = img.height;
+        if (!w || !h) throw new Error('Invalid image dimensions.');
+        if (w > MAX_DIM || h > MAX_DIM) {
+          const scale = Math.min(MAX_DIM / w, MAX_DIM / h);
+          w = Math.round(w * scale);
+          h = Math.round(h * scale);
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('Canvas context unavailable.');
+        ctx.drawImage(img, 0, 0, w, h);
+        completed = true;
+        onSuccess(canvas.toDataURL('image/jpeg', QUALITY));
+      } catch (err) {
+        console.error(err);
+        if (!completed) { alert('Image could not be processed.'); if (inputEl) inputEl.value = ''; }
+      }
+    };
+
+    img.onerror = function(err) {
+      console.error(err);
+      if (!completed) { alert('Image could not be processed.'); if (inputEl) inputEl.value = ''; }
+    };
+
+    img.src = loadEvent.target.result;
+  };
+
+  reader.onerror = function(err) {
+    console.error(err);
+    if (!completed) { alert('Image file could not be read.'); if (inputEl) inputEl.value = ''; }
+  };
+
+  reader.readAsDataURL(file);
+}
+
+// ── PRE-BLAST PHOTO 1 ──────────────────────────────────────────────────────
+function handlePhotoUpload(event) {
+  const input = event.target;
+  _processImageFile(input.files[0], input, function(dataUrl) {
+    photoDataURL = dataUrl;
+    document.getElementById('photo-preview-img').src = dataUrl;
+    document.getElementById('photo-upload-empty').style.display = 'none';
+    document.getElementById('photo-preview-wrap').style.display = 'flex';
+    document.getElementById('photo-upload-wrap').setAttribute('aria-label', 'Charge photo attached');
+    queueAutosave();
+  });
+}
+function removePhoto(event) {
+  event.stopPropagation();
+  photoDataURL = null;
+  document.getElementById('pre-photo-input').value = '';
+  document.getElementById('photo-preview-img').src = '';
+  document.getElementById('photo-upload-empty').style.display = 'flex';
+  document.getElementById('photo-preview-wrap').style.display = 'none';
+  document.getElementById('photo-upload-wrap').setAttribute('aria-label', 'Click to attach charge photo');
+}
+
+// ── PRE-BLAST PHOTO 2 ──────────────────────────────────────────────────────
+window.prePhoto2DataURL = null;
+
+function handlePrePhoto2Upload(event) {
+  const input = event.target;
+  _processImageFile(input.files[0], input, function(dataUrl) {
+    window.prePhoto2DataURL = dataUrl;
+    document.getElementById('pre-photo2-img').src = dataUrl;
+    document.getElementById('pre-photo2-empty').style.display = 'none';
+    document.getElementById('pre-photo2-preview').style.display = 'flex';
+    document.getElementById('pre-photo2-wrap').setAttribute('aria-label', 'Pre-blast photo 2 attached');
+    if (typeof queueAutosave === 'function') queueAutosave();
+  });
+}
+
+function removePrePhoto2(event) {
+  if (event) { event.preventDefault(); event.stopPropagation(); }
+  window.prePhoto2DataURL = null;
+  const input = document.getElementById('pre-photo2-input');
+  if (input) input.value = '';
+  document.getElementById('pre-photo2-img').src = '';
+  document.getElementById('pre-photo2-empty').style.display = 'flex';
+  document.getElementById('pre-photo2-preview').style.display = 'none';
+  document.getElementById('pre-photo2-wrap').setAttribute('aria-label', 'Upload pre-blast photo 2');
+}
+
+// ── NAV ────────────────────────────────────────────────────────────────────
+function loadForm(m) {
+  mode = m;
+  document.getElementById('splash').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('form-pre').style.display  = m === 'pre'  ? 'block' : 'none';
+  document.getElementById('form-post').style.display = m === 'post' ? 'block' : 'none';
+
+  const modeEl = document.getElementById('chrome-mode');
+  modeEl.textContent = m === 'pre' ? 'Pre-Blast' : 'Post-Blast';
+  modeEl.className = 'chrome-mode ' + (m === 'pre' ? 'chrome-mode-pre' : 'chrome-mode-post');
+
+  const today = new Date().toISOString().split('T')[0];
+  const preDateEl  = document.getElementById('pre-date');
+  const postDateEl = document.getElementById('post-date');
+  if (m === 'pre'  && preDateEl  && !preDateEl.value)  preDateEl.value  = today;
+  if (m === 'post' && postDateEl && !postDateEl.value) postDateEl.value = today;
+  updateShotDisplay('');
+  updateCompletionChip(m);
+  queueAutosave();
+  updateReliabilityStatus();
+}
+
+// Tracks whether the form has unsaved changes since the last autosave flush
+let _formDirty = false;
+function markFormDirty() { _formDirty = true; }
+function markFormClean() { _formDirty = false; }
+
+function goBack() {
+  if (_formDirty) {
+    const ok = window.confirm('You have unsaved changes. Return to the menu?\n\nYour draft is autosaved and can be restored when you return.');
+    if (!ok) return;
+  }
+  document.getElementById('splash').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('form-pre').style.display = 'none';
+  document.getElementById('form-post').style.display = 'none';
+  mode = null;
+  _formDirty = false;
+  clearValidationState();
+  hideValidationSummary('pre');
+  hideValidationSummary('post');
+  checkForStoredDraftOnLoad();
+  updateCompletionChip(null);
+}
+
+// ── SHOT NUMBER BAR ────────────────────────────────────────────────────────
+function onShotInput(val, m) {
+  updateShotDisplay(val);
+  if (m === 'post') {
+    document.getElementById('ref-shot-num').textContent = val.trim() || '—';
+  }
+}
+function onDateInput() {
+  const pre = document.getElementById(mode === 'pre' ? 'pre-date' : 'post-date').value;
+  if (pre) {
+    const d = new Date(pre + 'T00:00:00');
+    document.getElementById('shot-bar-date').textContent =
+      d.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric', year:'numeric'});
+  }
+}
+function updateShotDisplay(val) {
+  const el = document.getElementById('shot-display');
+  if (val && val.trim()) {
+    el.textContent = val.trim();
+    el.className = 'shot-bar-value';
+  } else {
+    el.textContent = '—';
+    el.className = 'shot-bar-value empty';
+  }
+}
+
+// ── TOGGLES ────────────────────────────────────────────────────────────────
+
+function setTog(group, val) {
+  const btn = (id) => document.getElementById(id);
+  const setClass = (id, activeClass, isActive) => {
+    const el = btn(id);
+    if (el) el.className = 'tog-btn' + (isActive ? ' ' + activeClass : '');
+  };
+
+  if (group === 'class') {
+    // Scope to the active form — never cross-contaminate pre/post toggles
+    if (mode === 'post') {
+      postClassVal = val;
+      setClass('post-tog-train', 'active-neutral', val === 'training');
+      setClass('post-tog-ops',   'active-danger',  val === 'operational');
+    } else {
+      preClassVal = val;
+      setClass('tog-train', 'active-neutral', val === 'training');
+      setClass('tog-ops',   'active-danger',  val === 'operational');
+    }
+    return;
+  }
+
+  if (group === 'prop') {
+    propVal = val;
+    setClass('prop-yes', 'active-neutral', val === 'yes');
+    setClass('prop-no', 'active-warn', val === 'no');
+    const wrap = document.getElementById('prop-type-wrap');
+    if (wrap) wrap.style.display = val === 'yes' ? 'block' : 'none';
+    return;
+  }
+
+  if (group === 'func') {
+    funcVal = val;
+    setClass('func-yes', 'active-positive', val === 'yes');
+    setClass('func-no', 'active-danger', val === 'no');
+    const panel = document.getElementById('failure-panel');
+    if (panel) panel.style.display = val === 'no' ? 'block' : 'none';
+    return;
+  }
+
+  if (group === 'secondary') {
+    secVal = val;
+    setClass('sec-yes', 'active-neutral', val === 'yes');
+    setClass('sec-no', 'active-warn', val === 'no');
+    const row = document.getElementById('sec-method-row');
+    if (row) row.style.display = val === 'yes' ? 'block' : 'none';
+    return;
+  }
+
+  if (group === 'postenv') {
+    window.postEnvVal = val;
+    setClass('post-env-indoor', 'active-neutral', val === 'indoor');
+    setClass('post-env-outdoor', 'active-danger', val === 'outdoor');
+    return;
+  }
+}
+function togglePrimingOther() {
+  document.getElementById('priming-other-row').style.display =
+    document.getElementById('pre-priming-sys').value === 'Other' ? 'grid' : 'none';
+}
+
+// ── TARGET DROPDOWNS ───────────────────────────────────────────────────────
+function updateTgtTypes() {
+  const cat = document.getElementById('post-tgt-cat').value;
+  const sel = document.getElementById('post-tgt-type');
+  sel.innerHTML = '<option value="">— Select Type —</option>';
+  if (cat && TGT_TYPES[cat]) {
+    TGT_TYPES[cat].forEach(t => {
+      const o = document.createElement('option');
+      o.value = o.textContent = t;
+      sel.appendChild(o);
+    });
+  }
+  document.getElementById('tgt-other-row').style.display = 'none';
+}
+function checkTgtOther() {
+  const v = document.getElementById('post-tgt-type').value;
+  document.getElementById('tgt-other-row').style.display = v === 'Other (specify)' ? 'grid' : 'none';
+}
+
+// ── EXPLOSIVE ROWS ─────────────────────────────────────────────────────────
+function addExpRow(type) {
+  rowId++;
+  const id = rowId;
+  const tbody = document.getElementById('exp-body');
+  const tr = document.createElement('tr');
+  tr.id = 'row-' + id;
+  tr.dataset.type = type;
+
+  if (type === 'detcord') {
+    tr.innerHTML = `
+      <td class="label-cell">Det Cord</td>
+      <td><select onchange="recalc()" style="width:100%">
+        <option value="18">18 gr/ft</option>
+        <option value="25">25 gr/ft</option>
+        <option value="36">36 gr/ft</option>
+        <option value="50">50 gr/ft</option>
+        <option value="100">100 gr/ft</option>
+      </select></td>
+      <td><select onchange="recalc()" style="width:100%">
+        <option value="feet">Feet</option>
+        <option value="inches">Inches</option>
+      </select></td>
+      <td><input type="number" placeholder="0" step="0.001" min="0" oninput="recalc()" style="text-align:right;width:100%"></td>
+      <td class="grains-cell" id="gr-${id}">0.000</td>
+      <td><button class="rm-btn" onclick="removeRow(${id})" title="Remove">×</button></td>`;
+  } else if (type === 'cap') {
+    tr.innerHTML = `
+      <td class="label-cell">Blasting Cap</td>
+      <td class="muted-cell">15.4 gr/ea</td>
+      <td class="muted-cell">Qty</td>
+      <td><input type="number" placeholder="1" step="1" min="1" value="1" oninput="recalc()" style="text-align:right;width:100%"></td>
+      <td class="grains-cell" id="gr-${id}">15.400</td>
+      <td><button class="rm-btn" onclick="removeRow(${id})" title="Remove">×</button></td>`;
+  } else {
+    tr.innerHTML = `
+      <td class="label-cell">Booster</td>
+      <td class="muted-cell">Manual</td>
+      <td class="muted-cell">Grains</td>
+      <td><input type="number" placeholder="0.000" step="0.001" min="0" oninput="recalc()" style="text-align:right;width:100%"></td>
+      <td class="grains-cell" id="gr-${id}">0.000</td>
+      <td><button class="rm-btn" onclick="removeRow(${id})" title="Remove">×</button></td>`;
+  }
+  tbody.appendChild(tr);
+  recalc();
+}
+
+function removeRow(id) {
+  const r = document.getElementById('row-' + id);
+  if (r) r.remove();
+  recalc();
+}
+
+// ── CALCULATIONS ───────────────────────────────────────────────────────────
+function recalc() {
+  totalGR = 0;
+  document.querySelectorAll('#exp-body tr').forEach(row => {
+    const type = row.dataset.type;
+    const inputs = row.querySelectorAll('input[type=number]');
+    const selects = row.querySelectorAll('select');
+    const id = row.id.replace('row-', '');
+    let rg = 0;
+    if (type === 'detcord') {
+      const gw = parseFloat(selects[0]?.value) || 0;
+      const unit = selects[1]?.value || 'feet';
+      const len = parseFloat(inputs[0]?.value) || 0;
+      rg = (unit === 'inches' ? len / 12 : len) * gw;
+    } else if (type === 'cap') {
+      rg = (parseFloat(inputs[0]?.value) || 0) * 15.4;
+    } else {
+      rg = parseFloat(inputs[0]?.value) || 0;
+    }
+    rg = Math.round(rg * 1000) / 1000;
+    const gc = document.getElementById('gr-' + id);
+    if (gc) gc.textContent = rg.toFixed(3);
+    totalGR += rg;
+  });
+  totalGR = Math.round(totalGR * 1000) / 1000;
+  const lbs = Math.round((totalGR / 7000) * 1000) / 1000;
+  lbsTNT = Math.round(lbs * 1.66 * 1000) / 1000;
+  const k = parseFloat(document.getElementById('pre-kfactor')?.value) || 0;
+  msdVal = (k > 0 && lbsTNT > 0) ? Math.round(k * Math.cbrt(lbsTNT) * 1000) / 1000 : 0;
+
+  const fmt = (v, u) => v > 0 ? v.toFixed(3) + ' ' + u : '—';
+  setText('ch-gr', fmt(totalGR, 'gr'), totalGR > 0);
+  setText('ch-lbs', fmt(lbs, 'lbs'), lbs > 0);
+  setText('ch-tnt', fmt(lbsTNT, 'lbs TNT'), lbsTNT > 0);
+  setText('ch-msd', fmt(msdVal, 'ft'), msdVal > 0);
+  // Frag zone: K=328 × ∛(LBS TNT)
+  const fragVal = lbsTNT > 0 ? Math.round(328 * Math.cbrt(lbsTNT) * 1000) / 1000 : 0;
+  setText('ch-frag', fmt(fragVal, 'ft'), fragVal > 0);
+  document.getElementById('pre-msd-calc').value  = msdVal  > 0 ? msdVal.toFixed(3) + ' ft' : '';
+  document.getElementById('pre-msd-round').value = msdVal  > 0 ? Math.ceil(msdVal) + ' ft'  : '';
+
+  const fragCalcEl  = document.getElementById('pre-frag-calc');
+  const fragRoundEl = document.getElementById('pre-frag-round');
+  if (fragCalcEl)  fragCalcEl.value  = fragVal > 0 ? fragVal.toFixed(3) + ' ft' : '';
+  if (fragRoundEl) fragRoundEl.value = fragVal > 0 ? Math.ceil(fragVal) + ' ft'  : '';
+
+  calcOVP();
+  calcConfirmed = false;
+  document.getElementById('confirmed-banner').style.display = 'none';
+}
+
+function setText(id, val, hasVal) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = val;
+  el.className = 'calc-row-value' + (hasVal ? ' has-value' : '');
+}
+
+function calcOVP() {
+  const h = parseFloat(document.getElementById('pre-h')?.value) || 0;
+  const l = parseFloat(document.getElementById('pre-l')?.value) || 0;
+  const w = parseFloat(document.getElementById('pre-w')?.value) || 0;
+  if (h > 0 && l > 0 && w > 0 && lbsTNT > 0) {
+    const vol = Math.round(h * l * w * 1000) / 1000;
+    const psi = Math.round(Math.pow(lbsTNT / vol, 0.72) * 2410 * 1000) / 1000;
+    document.getElementById('pre-vol').value      = vol.toFixed(3) + ' cu ft';
+    document.getElementById('pre-psi-calc').value = psi.toFixed(3) + ' PSI';
+    document.getElementById('pre-psi-round').value = Math.ceil(psi) + ' PSI';
+  } else {
+    ['pre-vol','pre-psi-calc','pre-psi-round'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+  }
+}
+
+function confirmCalcs() {
+  if (totalGR === 0) { alert('Add at least one explosive entry before confirming.'); return; }
+  if (!document.getElementById('pre-kfactor').value) { alert('Select a K Factor before confirming.'); return; }
+  calcConfirmed = true;
+  const b = document.getElementById('confirmed-banner');
+  b.style.display = 'block';
+  const _confFrag = lbsTNT > 0 ? Math.round(328 * Math.cbrt(lbsTNT) * 1000) / 1000 : 0;
+  document.getElementById('conf-gr').textContent   = totalGR.toFixed(3);
+  document.getElementById('conf-tnt').textContent  = lbsTNT.toFixed(3);
+  document.getElementById('conf-msd').textContent  = msdVal.toFixed(3);
+  document.getElementById('conf-msd-ru').textContent  = ' ' + Math.ceil(msdVal) + ' ft';
+  document.getElementById('conf-frag').textContent = _confFrag.toFixed(3);
+  document.getElementById('conf-frag-ru').textContent = ' ' + Math.ceil(_confFrag) + ' ft';
+  b.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ── COLLECT EXP ROW DATA ───────────────────────────────────────────────────
+function getExpData() {
+  const rows = [];
+  document.querySelectorAll('#exp-body tr').forEach(row => {
+    const type = row.dataset.type;
+    const inputs = row.querySelectorAll('input[type=number]');
+    const selects = row.querySelectorAll('select');
+    const id = row.id.replace('row-', '');
+    const gr = document.getElementById('gr-' + id)?.textContent || '0.000';
+    if (type === 'detcord') rows.push({ comp: 'Det Cord', gw: (selects[0]?.value || '') + ' gr/ft', amt: (inputs[0]?.value || '0') + ' ' + (selects[1]?.value || 'feet'), gr });
+    else if (type === 'cap') rows.push({ comp: 'Blasting Cap', gw: '15.4 gr/ea', amt: (inputs[0]?.value || '1') + ' each', gr });
+    else rows.push({ comp: 'Booster', gw: 'Manual', amt: (inputs[0]?.value || '0') + ' gr', gr });
+  });
+  return rows;
+}
+
+// ── PDF STYLES ─────────────────────────────────────────────────────────────
+const PDF_CSS = `
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, Helvetica, sans-serif; font-size: 10.5px; color: #1a1612; background: #fff; }
+  .wrap { padding: 0; }
+
+  .hdr { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 14px; border-bottom: 2px solid #1a1612; margin-bottom: 12px; }
+  .hdr-left { display: flex; align-items: center; gap: 14px; }
+  .dept { font-size: 7.5px; letter-spacing: 0.18em; color: #7a706a; text-transform: uppercase; margin-bottom: 2px; }
+  .prog { font-size: 17px; font-weight: bold; color: #1a1612; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 1px; }
+  .sub  { font-size: 9px; letter-spacing: 0.15em; color: #8a6a2a; text-transform: uppercase; }
+  .hdr-right { text-align: right; }
+  .badge { font-size: 9px; letter-spacing: 0.12em; font-weight: bold; padding: 3px 10px; border: 1.5px solid; border-radius: 2px; display: inline-block; margin-bottom: 5px; }
+  .badge-pre  { color: #1a1612; border-color: #1a1612; background: #edf0f2; }
+  .badge-post { color: #8b1c14; border-color: #8b1c14; background: #fdf3f2; }
+  .restr { font-size: 7.5px; letter-spacing: 0.18em; color: #8b1c14; border: 1px solid rgba(139,28,20,0.4); padding: 2px 8px; display: inline-block; }
+
+  .shot-bar { background: #1a1612; padding: 9px 0 9px 0; margin-bottom: 8px; display: flex; align-items: baseline; gap: 10px; }
+  .shot-label { font-size: 8px; letter-spacing: 0.22em; color: rgba(255,255,255,0.4); text-transform: uppercase; padding-left: 12px; }
+  .shot-val   { font-size: 22px; font-weight: bold; color: #fff; letter-spacing: 0.04em; }
+
+  .conf-box { background: #1a1612; padding: 14px 12px; margin-bottom: 8px; border-radius: 2px; }
+  .conf-label { font-size: 7.5px; letter-spacing: 0.2em; color: rgba(255,255,255,0.35); text-transform: uppercase; margin-bottom: 10px; }
+  .conf-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .conf-item { text-align: center; padding: 10px 8px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 2px; }
+  .conf-item-label { font-size: 7px; letter-spacing: 0.14em; color: rgba(255,255,255,0.35); text-transform: uppercase; margin-bottom: 6px; }
+  .conf-item-val   { font-size: 20px; font-weight: bold; color: #fff; }
+  .conf-item-unit  { font-size: 8px; color: rgba(255,255,255,0.35); margin-top: 2px; }
+  .conf-item-ru    { font-size: 9px; font-weight: bold; color: rgba(196,160,80,0.8); margin-top: 4px; }
+
+  .section { margin-bottom: 11px; border: 1px solid #e8e2dc; border-radius: 2px; overflow: hidden; }
+  .sec-head { background: #1a1612; padding: 6px 12px; display: flex; align-items: center; gap: 8px; border-bottom: 1.5px solid #8a6a2a; }
+  .sec-num  { font-size: 8px; font-weight: 600; color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); padding: 1px 7px; border-radius: 2px; }
+  .sec-ttl  { font-size: 13px; font-weight: 700; letter-spacing: 0.16em; color: rgba(255,255,255,0.7); text-transform: uppercase; }
+  .sec-body { padding: 10px 12px; }
+
+  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
+  .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 8px; }
+  .g4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; margin-bottom: 8px; }
+  .g3-last, .g2-last, .g4-last { margin-bottom: 0; }
+
+  .field label { font-size: 7px; letter-spacing: 0.18em; color: #7a706a; text-transform: uppercase; display: block; margin-bottom: 2px; }
+  .field span  { font-size: 11.5px; font-weight: 600; color: #1a1612; display: block; padding-bottom: 3px; border-bottom: 1px solid #e8e2dc; min-height: 17px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: #3d3530; color: rgba(255,255,255,0.7); padding: 5px 8px; text-align: left; font-size: 8px; letter-spacing: 0.12em; font-weight: 600; text-transform: uppercase; }
+  td { padding: 4px 8px; border-bottom: 1px solid #eaedf0; }
+  tr:nth-child(even) td { background: #f5f7f9; }
+  .tfoot-row td { background: #edf0f2; font-weight: bold; color: #8a6a2a; }
+
+  .callout { padding: 6px 10px; border-left: 3px solid; margin: 6px 0; font-size: 8.5px; line-height: 1.5; }
+  .callout-info { border-color: #b0bcc8; background: #f5f7f9; color: #3d3530; }
+  .callout-warn { border-color: #c0a030; background: #fef9ec; color: #5a4000; }
+
+  .sig-line { border-top: 1px solid #1a1612; margin-top: 6px; padding-top: 3px; font-weight: bold; font-size: 13px; }
+
+  .preref { background: #f5f7f9; border: 1px solid #d8dde2; border-left: 3px solid #c4a050; padding: 10px 14px; margin-bottom: 11px; border-radius: 0 2px 2px 0; }
+  .preref-ttl { font-size: 8px; letter-spacing: 0.18em; color: #8a6a2a; text-transform: uppercase; font-weight: 700; margin-bottom: 6px; }
+
+  .tag { display: inline-block; padding: 2px 7px; font-size: 7.5px; font-weight: bold; letter-spacing: 0.12em; border: 1px solid; border-radius: 2px; }
+  .tag-train { color: #1a1612; border-color: #1a1612; background: #edf0f2; }
+  .tag-ops   { color: #8b1c14; border-color: #8b1c14; background: #fdf3f2; }
+
+  .footer { margin-top: 16px; padding-top: 8px; border-top: 1px solid #e8e2dc; display: flex; justify-content: space-between; font-size: 7.5px; color: #b0a89f; letter-spacing: 0.06em; }
+
+  .func-yes { color: #1a5c14; font-weight: bold; }
+  .func-no  { color: #8b1c14; font-weight: bold; }
+
+  .fail-sec .sec-head { background: #8b1c14; border-bottom-color: #eb4535; }
+
+  img { max-width: 100%; }
+  p, .field span, .sig-line { overflow-wrap: anywhere; word-break: break-word; white-space: pre-wrap; }
+  .section, .conf-box, .callout { page-break-inside: avoid; break-inside: avoid; }
+  .sec-body { overflow: hidden; }
+  .photo-grid-pdf { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .photo-cell-pdf { border:1px solid #e8e2dc; border-radius:2px; overflow:hidden; background:#fff; page-break-inside: avoid; break-inside: avoid; }
+  .photo-label-pdf { padding:5px 8px; font-size:7px; letter-spacing:0.14em; color:#7a706a; text-transform:uppercase; border-bottom:1px solid #e8e2dc; }
+  .photo-img-pdf { display:block; width:100%; height:180px; object-fit:contain; background:#f6f7f8; }
+  .page-break { page-break-before: always; break-before: page; }
+  @media print {
+    .section, .conf-box, .photo-cell-pdf { page-break-inside: avoid; break-inside: avoid; }
+  }
+`;
+
+// ── BUILD PDF HTML ─────────────────────────────────────────────────────────
+
+function escHTML(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+function safeText(value, fallback = '—') {
+  const v = String(value ?? '').trim();
+  return v ? escHTML(v) : fallback;
+}
+function yesNoTag(value, yesText, noText) {
+  if (value === 'yes' || value === 'training' || value === 'indoor') return yesText;
+  if (value === 'no' || value === 'operational') return noText;
+  return '—';
+}
+
+function buildPhotoGalleryHTML(photoList, title, secNum) {
+  const validPhotos = (photoList || []).filter(Boolean);
+  if (!validPhotos.length) return '';
+
+  const chunks = [];
+  for (let i = 0; i < validPhotos.length; i += 4) {
+    chunks.push(validPhotos.slice(i, i + 4));
+  }
+
+  // Each chunk must fit on exactly one PDF page.
+  // Letter page usable height (792 - 48pt margins) ≈ 744pt.
+  // Section header ~34px + sec-body padding ~20px leaves ~690px for images.
+  // 2-col × 2-row grid: each image capped at 300px → grid height ≤ 620px (with gap).
+  // 2-col × 1-row grid (1–2 photos): each image capped at 620px.
+  return chunks.map((group, groupIndex) => {
+    const isSingleRow = group.length <= 2;
+    const imgHeight = isSingleRow ? 600 : 290;
+    const cells = group.map((src, i) => `
+      <div class="photo-cell-pdf">
+        <div class="photo-label-pdf">Photo ${groupIndex * 4 + i + 1}</div>
+        <img src="${src}" alt="${escHTML(title)} ${groupIndex * 4 + i + 1}" style="display:block;width:100%;height:${imgHeight}px;max-height:${imgHeight}px;object-fit:contain;background:#f6f7f8;">
+      </div>
+    `).join('');
+
+    return `
+<div class="section page-break" data-pdf-pagebreak="true">
+  <div class="sec-head"><span class="sec-num">${secNum}</span><span class="sec-ttl">${escHTML(title)}${chunks.length > 1 ? ` (${groupIndex + 1}/${chunks.length})` : ''}</span></div>
+  <div class="sec-body">
+    <div class="photo-grid-pdf">${cells}</div>
+  </div>
+</div>`;
+  }).join('');
+}
+function buildPDFHTML(type) {
+  if (type === 'pre') {
+    const sn  = document.getElementById('pre-shot').value.trim();
+    const d   = document.getElementById('pre-date').value;
+    const loc = document.getElementById('pre-loc').value;
+    const bb  = document.getElementById('pre-built-by').value;
+    const ct  = document.getElementById('pre-charge-type').value;
+    const adh = document.getElementById('pre-adhesion').value;
+    const pm  = document.getElementById('pre-priming-method').value;
+    const ps  = document.getElementById('pre-priming-sys').value;
+    const po  = document.getElementById('pre-priming-other').value;
+    const prop = propVal;
+    const pt  = document.getElementById('pre-prop-type').value;
+    const fz      = document.getElementById('pre-frag-calc').value;
+    const fzRound = document.getElementById('pre-frag-round').value;
+    const base = document.getElementById('pre-base-material').value;
+    const style = document.getElementById('pre-charge-style').value;
+    const det = document.getElementById('pre-detcord').value;
+    const init = document.getElementById('pre-initiation').value;
+    const buildNotes = document.getElementById('pre-construction-notes').value;
+    const k   = document.getElementById('pre-kfactor').value;
+    const mc  = document.getElementById('pre-msd-calc').value;
+    const mr  = document.getElementById('pre-msd-round').value;
+    const fc  = document.getElementById('pre-frag-calc').value;
+    const fr  = document.getElementById('pre-frag-round').value;
+    const vol = document.getElementById('pre-vol').value;
+    const pc  = document.getElementById('pre-psi-calc').value;
+    const pru = document.getElementById('pre-psi-round').value;
+    const notes = document.getElementById('pre-notes').value;
+    const sig = document.getElementById('pre-sig').value;
+    const ts  = new Date().toLocaleString();
+    document.getElementById('pre-ts').value = ts;
+    const lbs = (totalGR / 7000).toFixed(3);
+    const expData = getExpData();
+    const expRows = expData.map(r =>
+      `<tr><td>${escHTML(r.comp)}</td><td>${escHTML(r.gw)}</td><td>${escHTML(r.amt)}</td><td style="text-align:right">${escHTML(r.gr)}</td></tr>`
+    ).join('');
+    const propText = prop === 'yes' ? 'Yes' : prop === 'no' ? 'No' : '—';
+    const primingSystem = ps === 'Other' ? (po || 'Other') : ps;
+    const _p1 = photoDataURL;
+    const _p2 = window.prePhoto2DataURL || null;
+    let photoHTML = '';
+    // Photo images are sized to guarantee the entire section fits within one PDF page.
+    // Letter page = 792pt, margins 24pt × 2 = 744pt usable. Section header ~34px +
+    // sec-body padding ~20px leaves ~690px for image content. Two side-by-side images
+    // are each capped at 330px tall so the grid stays within that budget.
+    if (_p1 && _p2) {
+      photoHTML = `<div class="section page-break" data-pdf-pagebreak="true"><div class="sec-head"><span class="sec-num">07</span><span class="sec-ttl">Charge Construction Photos</span></div><div class="sec-body" style="padding:0;display:grid;grid-template-columns:1fr 1fr;gap:0"><img src="${_p1}" alt="Charge photo 1 — Pre-Priming" style="width:100%;height:330px;max-height:330px;object-fit:contain;display:block;background:#1a1612"><img src="${_p2}" alt="Charge photo 2 — Post-Priming" style="width:100%;height:330px;max-height:330px;object-fit:contain;display:block;background:#1a1612;border-left:2px solid #2a2420"></div></div>`;
+    } else if (_p1) {
+      photoHTML = `<div class="section page-break" data-pdf-pagebreak="true"><div class="sec-head"><span class="sec-num">07</span><span class="sec-ttl">Charge Construction Photo</span></div><div class="sec-body" style="padding:0"><img src="${_p1}" alt="Charge construction photo" style="width:100%;height:660px;max-height:660px;object-fit:contain;display:block;background:#1a1612"></div></div>`;
+    } else if (_p2) {
+      photoHTML = `<div class="section page-break" data-pdf-pagebreak="true"><div class="sec-head"><span class="sec-num">07</span><span class="sec-ttl">Charge Construction Photo</span></div><div class="sec-body" style="padding:0"><img src="${_p2}" alt="Charge construction photo" style="width:100%;height:660px;max-height:660px;object-fit:contain;display:block;background:#1a1612"></div></div>`;
+    }
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<style>${PDF_CSS}
+/* PRINT CLEANUP: HIDE PLACEHOLDERS / SAMPLE TEXT */
+@media print {
+  input::placeholder,
+  textarea::placeholder {
+    color: transparent !important;
+  }
+
+  input[value=""],
+  textarea {
+    color: #000 !important;
+  }
+
+  .placeholder,
+  .hint,
+  .example-text {
+    display: none !important;
+  }
+}
+
+</style>
+</head><body><div class="wrap">
+<div class="hdr">
+  <div class="hdr-left">
+    <div>
+      <div class="dept">Anchorage Police Department</div>
+      <div class="prog">Explosive Breacher Program</div>
+      <div class="sub">Shot Report</div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div class="badge badge-pre">● PRE-BLAST REPORT</div><br>
+    <div class="restr">Official Use Only</div>
+  </div>
+</div>
+<div class="shot-bar">
+  <span class="shot-label">Shot #</span>
+  <span class="shot-val">${safeText(sn)}</span>
+</div>
+<div class="conf-box">
+  <div class="conf-label">Confirmed Calculations</div>
+  <div class="conf-grid">
+    <div class="conf-item"><div class="conf-item-label">Total Grains (NEW)</div><div class="conf-item-val">${Number(totalGR || 0).toFixed(3)}</div><div class="conf-item-unit">GR</div></div>
+    <div class="conf-item"><div class="conf-item-label">LBS TNT Equivalent</div><div class="conf-item-val">${Number(lbsTNT || 0).toFixed(3)}</div><div class="conf-item-unit">LBS TNT</div></div>
+    <div class="conf-item"><div class="conf-item-label">Min Safe Distance</div><div class="conf-item-val">${Number(msdVal || 0).toFixed(3)}</div><div class="conf-item-unit">FEET</div><div class="conf-item-ru"> ${Math.ceil(Number(msdVal || 0))} ft</div></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-head"><span class="sec-num">01</span><span class="sec-ttl">Identification</span></div>
+  <div class="sec-body">
+    <div class="g3"><div class="field"><label>Shot Number</label><span>${safeText(sn)}</span></div><div class="field"><label>Date</label><span>${safeText(d)}</span></div></div>
+    <div class="g2"><div class="field"><label>Location / Address</label><span>${safeText(loc)}</span></div><div class="field"><label>Classification</label><span>${safeText(classVal ? classVal.toUpperCase() : '')}</span></div></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-head"><span class="sec-num">02</span><span class="sec-ttl">Personnel</span></div>
+  <div class="sec-body">
+    <div class="g2"><div class="field"><label>Charge Built By</label><span>${safeText(bb)}</span></div><div class="field"><label>Supervising Officer</label><span>${safeText(document.getElementById('pre-supervisor')?.value || '')}</span></div></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-head"><span class="sec-num">03</span><span class="sec-ttl">Charge Information</span></div>
+  <div class="sec-body">
+    <div class="g2"><div class="field"><label>Type of Charge</label><span>${safeText(ct)}</span></div><div class="field"><label>Method of Adhesion</label><span>${safeText(adh)}</span></div></div>
+    <div class="g2"><div class="field"><label>Priming Method</label><span>${safeText(pm)}</span></div><div class="field"><label>Priming System</label><span>${safeText(primingSystem)}</span></div></div>
+    <div class="g2"><div class="field"><label>Prop Stick</label><span>${safeText(propText)}</span></div><div class="field"><label>Prop Stick Type</label><span>${safeText(pt)}</span></div></div>
+    <div class="field g2-last"><label>Frag Zone (K328)</label><span>${safeText(fz)}${safeText(fz) !== '—' && safeText(fzRound) !== '—' ? ' (↑ ' + safeText(fzRound) + ')' : ''}</span></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-head"><span class="sec-num">04</span><span class="sec-ttl">Charge Construction</span></div>
+  <div class="sec-body">
+    <div class="g2"><div class="field"><label>Base Material</label><span>${safeText(base)}</span></div><div class="field"><label>Charge Style</label><span>${safeText(style)}</span></div></div>
+    <div class="g2"><div class="field"><label>Det Cord Used</label><span>${safeText(det)}</span></div><div class="field"><label>Initiation Method</label><span>${safeText(init)}</span></div></div>
+    <div class="field g2-last"><label>Construction Notes</label><span style="min-height:auto;padding-bottom:0;border-bottom:none;line-height:1.55;font-weight:500;">${safeText(buildNotes)}</span></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-head"><span class="sec-num">05</span><span class="sec-ttl">Explosive Calculations</span></div>
+  <div class="sec-body">
+    <table style="margin-bottom:10px;width:100%;border-collapse:collapse;font-size:10px;">
+      <thead><tr><th style="text-align:left;border-bottom:1px solid #d8dde2;padding:6px 4px;">Component</th><th style="text-align:left;border-bottom:1px solid #d8dde2;padding:6px 4px;">Grain Weight</th><th style="text-align:left;border-bottom:1px solid #d8dde2;padding:6px 4px;">Amount</th><th style="text-align:right;border-bottom:1px solid #d8dde2;padding:6px 4px;">Grains</th></tr></thead>
+      <tbody>${expRows}</tbody>
+      <tfoot><tr class="tfoot-row"><td colspan="3" style="text-align:right;font-size:8px;letter-spacing:0.12em;padding:6px 4px;">TOTAL GRAINS (NEW)</td><td style="text-align:right;padding:6px 4px;">${Number(totalGR || 0).toFixed(3)}</td></tr></tfoot>
+    </table>
+    <div class="g3"><div class="field"><label>Total LBS</label><span>${safeText(lbs)} lbs</span></div><div class="field"><label>LBS TNT (× RE 1.66)</label><span>${Number(lbsTNT || 0).toFixed(3)} lbs TNT</span></div><div class="field"><label>K Factor</label><span>${safeText(k)}</span></div></div>
+    <div class="g2" style="margin-bottom:6px"><div class="field"><label>MSD Calculated</label><span>${safeText(mc)}</span></div><div class="field"><label>MSD Round Up</label><span>${safeText(mr)}</span></div></div>
+    <div class="g2" style="margin-bottom:6px"><div class="field"><label>Frag Zone Calculated (K328)</label><span>${safeText(fc)}</span></div><div class="field"><label>Frag Zone Round Up</label><span>${safeText(fr)}</span></div></div>
+    <div class="callout callout-info">MSD figures do not account for reflective overpressure and colliding shock waves occurring as a result of explosive detonation in a confined environment.</div>
+    ${String(vol || '').trim() ? `<div class="g3" style="margin-top:8px"><div class="field"><label>Volume (cu ft)</label><span>${safeText(vol)}</span></div><div class="field"><label>PSI Calculated</label><span>${safeText(pc)}</span></div><div class="field"><label>PSI Round Up</label><span>${safeText(pru)}</span></div></div><div class="callout callout-warn" style="margin-top:6px">Maximum: 4 PSI exterior | 2 PSI interior</div>` : ''}
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-head"><span class="sec-num">06</span><span class="sec-ttl">Pre-Blast Notes</span></div>
+  <div class="sec-body"><p style="line-height:1.6">${safeText(notes)}</p></div>
+</div>
+${photoHTML}
+<div class="section">
+  <div class="sec-head"><span class="sec-num" style="min-width:auto">SIG</span><span class="sec-ttl">Authorization & Signature</span></div>
+  <div class="sec-body">
+    <div class="g2"><div class="field"><label>Signed By (Printed Name)</label><div class="sig-line">${safeText(sig)}</div></div><div class="field"><label>Date / Time of Submission</label><span>${escHTML(ts)}</span></div></div>
+  </div>
+</div>
+<div class="footer">
+  <span>Anchorage Police Department — Explosive Breacher Program</span>
+  <span>Shot # ${safeText(sn)} | PRE-BLAST REPORT</span>
+  <span>Official Use Only</span>
+</div>
+</div></body></html>`;
+  } else {
+    const sn  = document.getElementById('post-shot').value.trim();
+    const d   = document.getElementById('post-date').value;
+    const t   = document.getElementById('post-time').value;
+    const loc = document.getElementById('post-loc').value;
+    const cls = classVal ? classVal.toUpperCase() : '—';
+    const refShot = document.getElementById('ref-shot-num')?.textContent?.trim() || '';
+    const chargeType = document.getElementById('ref-ct')?.value?.trim() || '';
+    const chargeDesc = document.getElementById('post-charge-desc')?.value?.trim() || '';
+    const primary = document.getElementById('post-primary')?.value?.trim() || '';
+    const asst = document.getElementById('post-asst')?.value?.trim() || '';
+    const placed = document.getElementById('post-placed-by')?.value?.trim() || '';
+
+    const tc  = document.getElementById('post-tgt-cat').value;
+    const tt  = document.getElementById('post-tgt-type').value;
+    const to  = document.getElementById('post-tgt-other').value;
+    const mat = document.getElementById('post-material').value;
+    const thk = document.getElementById('post-thickness').value;
+    const hin = document.getElementById('post-hinge').value;
+    const lck = document.getElementById('post-lock').value;
+    const td  = (tt === 'Other (specify)') ? to : tt;
+
+    const env = window.postEnvVal === 'indoor' ? 'Indoors' : window.postEnvVal === 'outdoor' ? 'Outdoors' : '—';
+    const tempF = document.getElementById('post-temp-f')?.value?.trim() || '';
+    const humidity = document.getElementById('post-humidity')?.value?.trim() || '';
+    const weather = document.getElementById('post-weather-cond')?.value?.trim() || '';
+
+    const db  = document.getElementById('post-det-by').value;
+    const ph  = document.getElementById('post-photo').checked;
+
+    // Post-blast manual entry fields (were missing — caused ReferenceError in PDF template)
+    const actualNEW       = document.getElementById('post-actual-new')?.value?.trim() || '—';
+    const tntEquivManual  = document.getElementById('post-tnt-lbs')?.value?.trim() || '—';
+    const exteriorMSD     = document.getElementById('post-msd')?.value?.trim() || '—';
+    // Post-blast results fields (declared in genSummaryPDF but were missing here)
+    const positiveBreach   = document.getElementById('post-positive-breach')?.value || '—';
+    const desirableInside  = document.getElementById('post-desirable-inside')?.value || '—';
+    const desirableOutside = document.getElementById('post-desirable-outside')?.value || '—';
+    const hazardInside     = document.getElementById('post-hazard-inside')?.value || '—';
+    const hazardOutside    = document.getElementById('post-hazard-outside')?.value || '—';
+    const fc  = document.getElementById('post-fail-cat').value;
+    const sm  = document.getElementById('post-sec-method').value;
+    const cor = document.getElementById('post-corrective').value;
+    const notes = document.getElementById('post-notes').value;
+    const sig = document.getElementById('post-sig').value;
+    const ts  = new Date().toLocaleString();
+    document.getElementById('post-ts').value = ts;
+
+    const funcClass = funcVal === 'yes' ? 'func-yes' : funcVal === 'no' ? 'func-no' : '';
+    const funcText  = funcVal === 'yes' ? 'YES — Functioned as Designed' : 'NO — See Failure Analysis';
+    const failSection = funcVal === 'no' ? `
+<div class="section fail-sec">
+  <div class="sec-head"><span class="sec-num">⚠</span><span class="sec-ttl">Failure Analysis</span></div>
+  <div class="sec-body">
+    <div class="g2"><div class="field"><label>Failure Category</label><span>${safeText(fc)}</span></div><div class="field"><label>Secondary Attempt</label><span>${yesNoTag(secVal, 'YES', 'NO')}</span></div></div>
+    ${secVal === 'yes' ? `<div class="field" style="margin-bottom:8px"><label>Secondary Method Used</label><span>${safeText(sm)}</span></div>` : ''}
+    ${String(cor || '').trim() ? `<div class="field"><label>Corrective Action Taken</label><span>${safeText(cor)}</span></div>` : ''}
+  </div>
+</div>` : '';
+
+    const photoSection = buildPhotoGalleryHTML(window.postPhotoDataURLs || [], 'Post-Blast Photos', '06');
+
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<style>${PDF_CSS}
+/* PRINT CLEANUP: HIDE PLACEHOLDERS / SAMPLE TEXT */
+@media print {
+  input::placeholder,
+  textarea::placeholder {
+    color: transparent !important;
+  }
+
+  input[value=""],
+  textarea {
+    color: #000 !important;
+  }
+
+  .placeholder,
+  .hint,
+  .example-text {
+    display: none !important;
+  }
+}
+
+</style>
+</head><body><div class="wrap">
+<div class="hdr">
+  <div class="hdr-left">
+    <div>
+      <div class="dept">Anchorage Police Department</div>
+      <div class="prog">Explosive Breacher Program</div>
+      <div class="sub">Shot Report</div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div class="badge badge-post">● POST-BLAST REPORT</div><br>
+    <div class="restr">Official Use Only</div>
+  </div>
+</div>
+<div class="shot-bar">
+  <span class="shot-label">Shot #</span>
+  <span class="shot-val">${safeText(sn)}</span>
+</div>
+
+<div class="section">
+  <div class="sec-head"><span class="sec-num">01</span><span class="sec-ttl">Identification & Shot Reference</span></div>
+  <div class="sec-body">
+    <div class="g3"><div class="field"><label>Shot Number</label><span>${safeText(sn)}</span></div><div class="field"><label>Date</label><span>${safeText(d)}</span></div></div>
+    <div class="g2"><div class="field"><label>Location / Address</label><span>${safeText(loc)}</span></div><div class="field"><label>Classification</label><span>${safeText(cls)}</span></div></div>
+    <div class="g2"><div class="field"><label>Pre-Blast Shot #</label><span>${safeText(refShot || sn)}</span></div><div class="field"><label>Charge Type</label><span>${safeText(chargeType)}</span></div></div>
+    <div class="g3"><div class="field"><label>Actual NEW (grains)</label><span>${safeText(actualNEW)}</span></div><div class="field"><label>LBS TNT Equivalent</label><span>${safeText(tntEquivManual)}</span></div><div class="field"><label>Exterior MSD (ft)</label><span>${safeText(exteriorMSD)}</span></div></div>
+    <div class="field" style="margin-bottom:8px"><label>Charge Description</label><span style="min-height:auto;padding-bottom:0;border-bottom:none;line-height:1.55;font-weight:500;">${safeText(chargeDesc)}</span></div>
+    <div class="g3 g3-last"><div class="field"><label>Primary Breacher</label><span>${safeText(primary)}</span></div><div class="field"><label>Assistant Breacher</label><span>${safeText(asst)}</span></div><div class="field"><label>Charge Placed By</label><span>${safeText(placed)}</span></div></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-head"><span class="sec-num">02</span><span class="sec-ttl">Target</span></div>
+  <div class="sec-body">
+    <div class="g2"><div class="field"><label>Target Category</label><span>${safeText(tc)}</span></div><div class="field"><label>Target Type</label><span>${safeText(td)}</span></div></div>
+    <div class="g2"><div class="field"><label>Construction Material</label><span>${safeText(mat)}</span></div><div class="field"><label>Thickness</label><span>${safeText(thk)}</span></div></div>
+    <div class="g2 g2-last"><div class="field"><label>Hinge Count / Type</label><span>${safeText(hin)}</span></div><div class="field"><label>Lock / Mechanism</label><span>${safeText(lck)}</span></div></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-head"><span class="sec-num">03</span><span class="sec-ttl">Weather</span></div>
+  <div class="sec-body">
+    <div class="g2"><div class="field"><label>Environment</label><span>${safeText(env)}</span></div><div class="field"><label>Weather Conditions</label><span>${safeText(weather)}</span></div></div>
+    <div class="g2 g2-last"><div class="field"><label>Temperature °F</label><span>${safeText(tempF)}</span></div><div class="field"><label>Humidity %</label><span>${safeText(humidity)}</span></div></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-head"><span class="sec-num">04</span><span class="sec-ttl">Initiation</span></div>
+  <div class="sec-body">
+    <div class="g2"><div class="field"><label>Detonated By</label><span>${safeText(db)}</span></div><div class="field"><label>Charge Functioned as Designed</label><span class="${funcClass}">${escHTML(funcText)}</span></div></div>
+    <div class="field g2-last"><label>Construction Photo Logged</label><span>${ph ? 'YES — Attached to database' : 'NO'}</span></div>
+  </div>
+</div>
+${failSection}
+
+<div class="section">
+  <div class="sec-head"><span class="sec-num">05</span><span class="sec-ttl">Post-Blast Results</span></div>
+  <div class="sec-body">
+    <div class="g2"><div class="field"><label>Positive Breach?</label><span>${safeText(positiveBreach)}</span></div><div class="field"><label>Desirable Results Inside the Target?</label><span>${safeText(desirableInside)}</span></div></div>
+    <div class="g2"><div class="field"><label>Desirable Results Outside the Target?</label><span>${safeText(desirableOutside)}</span></div><div class="field"><label>Hazardous Frag / Debris Inside the Target?</label><span>${safeText(hazardInside)}</span></div></div>
+    <div class="g2 g2-last"><div class="field"><label>Hazardous Frag / Debris Outside the Target?</label><span>${safeText(hazardOutside)}</span></div><div class="field"><label>Post-Blast Results / Comments</label><span style="min-height:auto;padding-bottom:0;border-bottom:none;line-height:1.55;font-weight:500;">${safeText(notes)}</span></div></div>
+  </div>
+</div>
+${photoSection}
+<div class="section">
+  <div class="sec-head"><span class="sec-num" style="min-width:auto">SIG</span><span class="sec-ttl">Authorization & Signature</span></div>
+  <div class="sec-body">
+    <div class="g2"><div class="field"><label>Signed By (Printed Name)</label><div class="sig-line">${safeText(sig)}</div></div><div class="field"><label>Date / Time of Submission</label><span>${escHTML(ts)}</span></div></div>
+  </div>
+</div>
+<div class="footer">
+  <span>Anchorage Police Department — Explosive Breacher Program</span>
+  <span>Shot # ${safeText(sn)} | POST-BLAST REPORT</span>
+  <span>Official Use Only</span>
+</div>
+</div></body></html>`;
+  }
+}
+
+// ── SHOT SUMMARY PDF ───────────────────────────────────────────────────────
+function validateSummary() {
+  const errors = [];
+  const required = (id, message) => {
+    const el = document.getElementById(id);
+    if (!el || !(el.value || '').trim()) errors.push({ id, message });
+  };
+  required('post-shot',  'Shot Number is required for the Summary PDF.');
+  required('post-sig',   'Signature is required for the Summary PDF.');
+  required('post-notes', 'Post-Blast Results / Comments are required for the Summary PDF.');
+  const seen = new Set();
+  return errors.filter(e => { const k = e.id + '|' + e.message; if (seen.has(k)) return false; seen.add(k); return true; });
+}
+
+function genSummaryPDF() {
+  // Validate minimum required fields before generating
+  clearValidationState();
+  hideValidationSummary('post');
+  const summaryErrors = validateSummary();
+  if (summaryErrors.length) {
+    summaryErrors.forEach(e => markInvalidById(e.id, e.message));
+    focusFirstInvalid(summaryErrors[0].id);
+    showValidationSummary('post', summaryErrors);
+    return;
+  }
+
+  const sn   = document.getElementById('post-shot')?.value.trim() || document.getElementById('pre-shot')?.value.trim() || 'UNKNOWN';
+  const date = document.getElementById('post-date')?.value || document.getElementById('pre-date')?.value || '';
+  const loc  = document.getElementById('post-loc')?.value  || document.getElementById('pre-loc')?.value  || '';
+  const cls  = classVal ? classVal.toUpperCase() : '—';
+
+  const primary = document.getElementById('post-primary')?.value || '—';
+  const asst    = document.getElementById('post-asst')?.value    || '—';
+  const detBy   = document.getElementById('post-det-by')?.value  || '—';
+  const builtBy = document.getElementById('pre-built-by')?.value || '—';
+
+  const chargeType = document.getElementById('ref-ct')?.value || document.getElementById('pre-charge-type')?.value || '—';
+  const tgtCat  = document.getElementById('post-tgt-cat')?.value  || '—';
+  const tgtType = document.getElementById('post-tgt-type')?.value || '—';
+  const mat     = document.getElementById('post-material')?.value || '—';
+  const actualNEWManual = document.getElementById('post-actual-new')?.value || '—';
+  const tntManual = document.getElementById('post-tnt-lbs')?.value || '—';
+  const msdManual = document.getElementById('post-msd')?.value || '—';
+  const positiveBreach = document.getElementById('post-positive-breach')?.value || '—';
+  const desirableInside = document.getElementById('post-desirable-inside')?.value || '—';
+  const desirableOutside = document.getElementById('post-desirable-outside')?.value || '—';
+  const hazardInside = document.getElementById('post-hazard-inside')?.value || '—';
+  const hazardOutside = document.getElementById('post-hazard-outside')?.value || '—';
+
+  const lbs  = (totalGR / 7000).toFixed(3);
+  const tnt  = lbsTNT.toFixed(3);
+  const msd  = msdVal > 0 ? msdVal.toFixed(3) + ' ft (↑ ' + Math.ceil(msdVal) + ' ft)' : '—';
+  // Use manually entered TNT equivalent from post form when available; fall back to pre-calc lbsTNT
+  const _summaryTNT = (parseFloat(tntManual) > 0) ? parseFloat(tntManual) : lbsTNT;
+  const fragV = _summaryTNT > 0 ? Math.round(328 * Math.cbrt(_summaryTNT) * 1000) / 1000 : 0;
+  const frag = fragV > 0 ? fragV.toFixed(3) + ' ft (↑ ' + Math.ceil(fragV) + ' ft)' : '—';
+
+  const funcOK  = funcVal === 'yes' ? 'YES — Functioned as Designed' : funcVal === 'no' ? 'NO — See Post-Blast Report' : '—';
+  const results = document.getElementById('post-notes')?.value || '—';
+  const ts = new Date().toLocaleString();
+
+  const summaryHTML = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<style>
+${PDF_CSS}
+.sum-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.sum-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.sum-grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.kv { border: 1px solid #e0dbd5; border-radius: 2px; padding: 8px 10px; }
+.kv-label { font-family: Arial,sans-serif; font-size: 7px; letter-spacing: 0.18em; text-transform: uppercase; color: #7a706a; margin-bottom: 3px; }
+.kv-val { font-family: Arial,sans-serif; font-size: 13px; font-weight: 700; color: #1a1612; }
+.func-yes { color: #1a5c14; }
+.func-no  { color: #8b1c14; }
+.results-box { border: 1px solid #e0dbd5; border-left: 3px solid #8a6a2a; padding: 10px 12px; font-size: 11px; line-height: 1.65; color: #1a1612; white-space: pre-wrap; word-break: break-word; }
+</style>
+</head><body><div class="wrap">
+<div class="hdr">
+  <div class="hdr-left"><div>
+    <div class="dept">Anchorage Police Department</div>
+    <div class="prog">Explosive Breacher Program</div>
+    <div class="sub">Shot Summary</div>
+  </div></div>
+  <div class="hdr-right">
+    <div class="badge badge-pre" style="background:#edf0f2;color:#1a1612;border-color:#1a1612;">SHOT SUMMARY</div><br>
+    <div class="restr">Official Use Only</div>
+  </div>
+</div>
+<div class="shot-bar">
+  <span class="shot-label">Shot #</span>
+  <span class="shot-val">${escHTML(sn)}</span>
+</div>
+
+<div class="section">
+  <div class="sec-head"><span class="sec-num">01</span><span class="sec-ttl">Mission Overview</span></div>
+  <div class="sec-body">
+    <div class="sum-grid-4">
+      <div class="kv"><div class="kv-label">Date</div><div class="kv-val">${escHTML(date)}</div></div>
+      <div class="kv"><div class="kv-label">Classification</div><div class="kv-val">${escHTML(cls)}</div></div>
+      <div class="kv"><div class="kv-label">Charge Built By</div><div class="kv-val">${escHTML(builtBy)}</div></div>
+      <div class="kv"><div class="kv-label">Detonated By</div><div class="kv-val">${escHTML(detBy)}</div></div>
+    </div>
+    <div class="kv" style="margin-bottom:8px"><div class="kv-label">Location</div><div class="kv-val">${escHTML(loc)}</div></div>
+    <div class="sum-grid">
+      <div class="kv"><div class="kv-label">Primary Breacher</div><div class="kv-val">${escHTML(primary)}</div></div>
+      <div class="kv"><div class="kv-label">Assistant Breacher</div><div class="kv-val">${escHTML(asst)}</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-head"><span class="sec-num">02</span><span class="sec-ttl">Target</span></div>
+  <div class="sec-body">
+    <div class="sum-grid-3">
+      <div class="kv"><div class="kv-label">Category</div><div class="kv-val">${escHTML(tgtCat)}</div></div>
+      <div class="kv"><div class="kv-label">Type</div><div class="kv-val">${escHTML(tgtType)}</div></div>
+      <div class="kv"><div class="kv-label">Material</div><div class="kv-val">${escHTML(mat)}</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-head"><span class="sec-num">03</span><span class="sec-ttl">Charge &amp; Calculations</span></div>
+  <div class="sec-body">
+    <div class="sum-grid-4" style="margin-bottom:8px">
+      <div class="kv"><div class="kv-label">Charge Type</div><div class="kv-val">${escHTML(chargeType)}</div></div>
+      <div class="kv"><div class="kv-label">Actual NEW</div><div class="kv-val">${escHTML(actualNEWManual)}</div></div>
+      <div class="kv"><div class="kv-label">Manual LBS TNT Equiv.</div><div class="kv-val">${escHTML(tntManual)}</div></div>
+      <div class="kv"><div class="kv-label">Total LBS</div><div class="kv-val">${lbs} lbs</div></div>
+    </div>
+    <div class="sum-grid">
+      <div class="kv"><div class="kv-label">Exterior MSD</div><div class="kv-val">${escHTML(msdManual)}</div></div>
+      <div class="kv"><div class="kv-label">Frag Zone (K328)</div><div class="kv-val">${escHTML(frag)}</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-head"><span class="sec-num">04</span><span class="sec-ttl">Result</span></div>
+  <div class="sec-body">
+    <div class="kv" style="margin-bottom:10px"><div class="kv-label">Functioned as Designed</div>
+      <div class="kv-val ${funcVal === 'yes' ? 'func-yes' : funcVal === 'no' ? 'func-no' : ''}">${escHTML(funcOK)}</div>
+    </div>
+    <div class="sum-grid-3">
+      <div class="kv"><div class="kv-label">Positive Breach?</div><div class="kv-val">${escHTML(positiveBreach)}</div></div>
+      <div class="kv"><div class="kv-label">Desirable Inside Target?</div><div class="kv-val">${escHTML(desirableInside)}</div></div>
+      <div class="kv"><div class="kv-label">Desirable Outside Target?</div><div class="kv-val">${escHTML(desirableOutside)}</div></div>
+    </div>
+    <div class="sum-grid">
+      <div class="kv"><div class="kv-label">Hazardous Frag / Debris Inside?</div><div class="kv-val">${escHTML(hazardInside)}</div></div>
+      <div class="kv"><div class="kv-label">Hazardous Frag / Debris Outside?</div><div class="kv-val">${escHTML(hazardOutside)}</div></div>
+    </div>
+    <div class="kv-label" style="margin-bottom:4px">Post-Blast Results / Observations</div>
+    <div class="results-box">${escHTML(results)}</div>
+  </div>
+</div>
+
+<div class="footer">
+  <span>Anchorage Police Department — Explosive Breacher Program</span>
+  <span>Shot # ${escHTML(sn)} | SHOT SUMMARY</span>
+  <span>Generated ${escHTML(ts)}</span>
+</div>
+</div></body></html>`;
+
+  openPrintReport('summary', null, summaryHTML);
+}
+
+// ── GENERATE PDF ───────────────────────────────────────────────────────────
+function pdfLibrariesAvailable() {
+  return !!(window.html2canvas && window.jspdf && window.jspdf.jsPDF);
+}
+
+function updateReliabilityStatus() {
+  const el = document.getElementById('reliability-status');
+  if (!el) return;
+
+  const online = navigator.onLine;
+  const libs = pdfLibrariesAvailable();
+
+  if (!online && !libs) {
+    el.textContent = 'Offline — PDF unavailable';
+    el.title = 'No network connection and PDF libraries failed to load. Use your browser\u2019s Print function (File \u2192 Print) to save a paper copy.';
+    el.className = 'chrome-status chrome-status-warn';
+    return;
+  }
+
+  if (!libs) {
+    el.textContent = 'PDF unavailable — reload to retry';
+    el.title = 'PDF libraries failed to load from CDN. Reload the page while connected to the internet. If the problem persists, use browser Print as a fallback.';
+    el.className = 'chrome-status chrome-status-warn';
+    return;
+  }
+
+  if (!online) {
+    el.textContent = 'Offline — PDF ready';
+    el.title = 'No network connection, but PDF libraries are already loaded. PDF generation will work normally.';
+    el.className = 'chrome-status chrome-status-neutral';
+    return;
+  }
+
+  el.textContent = 'Ready';
+  el.title = 'PDF libraries loaded. All features available.';
+  el.className = 'chrome-status chrome-status-ready';
+}
+
+function waitForDocumentImages(doc) {
+  const imgs = Array.from(doc.images || []);
+  if (!imgs.length) return Promise.resolve();
+
+  return Promise.all(imgs.map((img) => {
+    if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+    return new Promise((resolve) => {
+      let done = false;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        resolve();
+      };
+      img.addEventListener('load', finish, { once: true });
+      img.addEventListener('error', finish, { once: true });
+      setTimeout(finish, 2500);
+    });
+  }));
+}
+
+function trimLargeNarrativeFields() {
+  ['pre-notes', 'pre-construction-notes', 'post-charge-desc', 'post-corrective', 'post-notes'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const v = (el.value || '').replace(/\r\n/g, '\n');
+    el.value = v;
+  });
+}
+
+// ── iOS DETECTION ──────────────────────────────────────────────────────────
+function isIOS() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+// ── PRINT / FALLBACK DELIVERY ───────────────────────────────────────────────
+// printReportFallback: called when jsPDF/html2canvas fails or is unavailable.
+// On iOS, window.open() is blocked in async callbacks, so we use a Blob URL
+// and inject a full-page overlay with an <a download> link + print button
+// instead. On desktop, open a new window and trigger window.print().
+function printReportFallback(htmlString, type) {
+  const fullDoc = `<!DOCTYPE html><html><head><title>Breacher Report</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body { background:#f3f4f6; margin:0; padding:0; }
+      .fallback-banner {
+        background:#7a5c18; color:#fff;
+        font:600 13px -apple-system,BlinkMacSystemFont,sans-serif;
+        padding:12px 20px; display:flex; align-items:center; gap:12px;
+        position:sticky; top:0; z-index:10;
+      }
+      .fallback-banner-icon { font-size:18px; flex-shrink:0; }
+      .fallback-banner-body { line-height:1.45; }
+      .fallback-banner-body strong { font-weight:700; }
+      .fallback-print-btn {
+        margin-left:auto; flex-shrink:0;
+        background:#fff; color:#7a5c18;
+        border:none; border-radius:3px;
+        font:700 12px -apple-system,BlinkMacSystemFont,sans-serif;
+        letter-spacing:0.06em; text-transform:uppercase;
+        padding:7px 14px; cursor:pointer;
+      }
+      .fallback-content { padding:16px; }
+      @media print {
+        .fallback-banner { display:none; }
+        .fallback-content { padding:0; }
+        body { background:#fff; }
+      }
+    </style>
+  </head><body>
+    <div class="fallback-banner">
+      <span class="fallback-banner-icon">⚠</span>
+      <span class="fallback-banner-body">
+        <strong>PDF library unavailable.</strong>
+        To save this report as a PDF, use your browser's
+        <strong>File → Print</strong> menu and choose <strong>"Save as PDF"</strong> as the destination.
+      </span>
+      <button class="fallback-print-btn" onclick="window.print()">Print / Save PDF</button>
+    </div>
+    <div class="fallback-content">${htmlString || ''}</div>
+  </body></html>`;
+
+  if (isIOS()) {
+    _deliverBlobURL(fullDoc, null, true);
+    return;
+  }
+
+  // Desktop path — open new window and print
+  try {
+    const printWindow = window.open('', '_blank', 'width=1100,height=1400');
+    if (!printWindow) {
+      // Popup blocked on desktop too — fall back to Blob
+      _deliverBlobURL(fullDoc, null, false);
+      return;
+    }
+    printWindow.document.open();
+    printWindow.document.write(fullDoc);
+    printWindow.document.close();
+    printWindow.onload = async function() {
+      try { await waitForDocumentImages(printWindow.document); } catch (e) {}
+      setTimeout(() => { printWindow.focus(); printWindow.print(); }, 400);
+    };
+  } catch (e) {
+    console.error('printReportFallback error:', e);
+    _deliverBlobURL(fullDoc, null, false);
+  }
+}
+
+// _deliverBlobURL: creates a Blob from htmlString or a jsPDF blob,
+// then either triggers a download link overlay (iOS) or opens in new tab.
+// pdfBlob: jsPDF Blob if available, null to use HTML blob.
+// iOSMode: if true, inject a tap-to-open overlay (window.open blocked).
+function _deliverBlobURL(htmlString, pdfBlob, iOSMode) {
+  try {
+    let blob, mimeType, filename;
+    if (pdfBlob) {
+      blob = pdfBlob;
+      mimeType = 'application/pdf';
+      filename = (pdfBlob._filename || 'report') + '.pdf';
+    } else {
+      blob = new Blob([htmlString], { type: 'text/html' });
+      mimeType = 'text/html';
+      filename = 'breacher_report.html';
+    }
+
+    const url = URL.createObjectURL(blob);
+
+    if (iOSMode) {
+      // On iOS we cannot call window.open() after an async op.
+      // Inject a full-screen overlay with a tap link so the user can open it.
+      const overlay = document.createElement('div');
+      overlay.id = 'ios-pdf-overlay';
+      overlay.style.cssText = [
+        'position:fixed','inset:0','z-index:99999',
+        'background:rgba(26,22,18,0.92)',
+        'display:flex','flex-direction:column',
+        'align-items:center','justify-content:center',
+        'gap:16px','padding:32px','box-sizing:border-box'
+      ].join(';');
+
+      const msg = document.createElement('p');
+      msg.style.cssText = 'color:#e8e0d8;font:600 15px -apple-system,BlinkMacSystemFont,sans-serif;text-align:center;margin:0;line-height:1.5;';
+      if (pdfBlob) {
+        msg.textContent = 'Your PDF is ready. Tap "Open Report" to view it, then use the Share \u2197 menu to save or print.';
+      } else {
+        msg.textContent = 'PDF library unavailable — your report opened as a printable page. Tap "Open Report," then use Share \u2197 \u2192 Print to save as PDF.';
+      }
+
+      const openBtn = document.createElement('a');
+      openBtn.href = url;
+      openBtn.target = '_blank';
+      openBtn.rel = 'noopener';
+      openBtn.style.cssText = [
+        'display:inline-block','padding:14px 28px',
+        'background:#7a9048','color:#fff','border-radius:3px',
+        'font:700 14px -apple-system,BlinkMacSystemFont,sans-serif',
+        'letter-spacing:0.06em','text-decoration:none','text-transform:uppercase'
+      ].join(';');
+      openBtn.textContent = 'Open Report';
+
+      const closeBtn = document.createElement('button');
+      closeBtn.style.cssText = [
+        'background:none','border:1px solid rgba(255,255,255,0.2)',
+        'color:rgba(255,255,255,0.5)','padding:8px 20px','border-radius:3px',
+        'font:500 12px -apple-system,BlinkMacSystemFont,sans-serif',
+        'cursor:pointer','letter-spacing:0.06em','text-transform:uppercase'
+      ].join(';');
+      closeBtn.textContent = 'Dismiss';
+      closeBtn.addEventListener('click', function() {
+        document.body.removeChild(overlay);
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+      });
+
+      overlay.appendChild(msg);
+      overlay.appendChild(openBtn);
+      overlay.appendChild(closeBtn);
+      document.body.appendChild(overlay);
+
+      // Auto-revoke after 5 minutes if still open
+      setTimeout(() => URL.revokeObjectURL(url), 300000);
+    } else {
+      // Non-iOS: just open in new tab
+      const a = document.createElement('a');
+      a.href = url;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    }
+  } catch (e) {
+    console.error('_deliverBlobURL error:', e);
+    alert('Unable to open report. Please ensure popups are allowed for this page.');
+  }
+}
+
+function openPrintReport(type, notice, customHTML) {
+  const noticeHTML = notice ? `
+    <div style="max-width:960px;margin:0 auto 12px auto;padding:10px 14px;border:1px solid #d5c37a;border-left:4px solid #8a6a2a;background:#fff8e8;font:12px/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#221c14;">
+      ${notice}
+    </div>` : '';
+
+  const bodyContent = customHTML || (noticeHTML + buildPDFHTML(type));
+  const fullDoc = `<!DOCTYPE html><html><head><title>Breacher Report</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body { background:#f3f4f6; margin:0; padding:16px; }
+      @media print { body { background:#fff; padding:0; } }
+    </style>
+  </head><body>${bodyContent}</body></html>`;
+
+  // iOS: window.open() works here (synchronous call) but we prefer Blob overlay
+  // for the summary PDF path which may be invoked synchronously too — keep this
+  // branch consistent with the async PDF delivery path.
+  if (isIOS()) {
+    _deliverBlobURL(fullDoc, null, true);
+    return true;
+  }
+
+  // Desktop
+  try {
+    const printWindow = window.open('', '_blank', 'width=1100,height=1400');
+    if (!printWindow) {
+      _deliverBlobURL(fullDoc, null, false);
+      return false;
+    }
+    printWindow.document.open();
+    printWindow.document.write(fullDoc);
+    printWindow.document.close();
+    printWindow.onload = async function() {
+      try { await waitForDocumentImages(printWindow.document); } catch (e) { console.error(e); }
+      setTimeout(() => { printWindow.focus(); printWindow.print(); }, 400);
+    };
+    return true;
+  } catch (e) {
+    console.error('openPrintReport error:', e);
+    _deliverBlobURL(fullDoc, null, false);
+    return false;
+  }
+}
+function clearValidationState() {
+  document.querySelectorAll('.field-invalid').forEach((el) => el.classList.remove('field-invalid'));
+  document.querySelectorAll('.field-error').forEach((el) => el.remove());
+}
+
+function markInvalidById(id, message) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const field = el.closest('.field') || el.parentElement || el;
+  field.classList.add('field-invalid');
+  const old = field.querySelector('.field-error');
+  if (old) old.remove();
+  const msg = document.createElement('div');
+  msg.className = 'field-error';
+  msg.textContent = message;
+  field.appendChild(msg);
+}
+
+function focusFirstInvalid(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const target = el.matches('input, select, textarea, button') ? el : el.querySelector('input, select, textarea, button');
+  if (target && typeof target.focus === 'function') target.focus({ preventScroll: true });
+  const field = el.closest('.field') || el;
+  if (field && typeof field.scrollIntoView === 'function') field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function validateReport(type) {
+  const errors = [];
+  const required = (id, message) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (!(el.value || '').trim()) errors.push({ id, message });
+  };
+  const requiredToggle = (id, condition, message) => {
+    if (!condition) errors.push({ id, message });
+  };
+
+  if (type === 'pre') {
+    required('pre-shot', 'Shot Number is required.');
+    required('pre-date', 'Date is required.');
+    required('pre-loc', 'Location / Address is required.');
+    requiredToggle('tog-train', !!classVal, 'Classification is required.');
+    required('pre-built-by', 'Charge Built By is required.');
+    required('pre-charge-type', 'Type of Charge is required.');
+    required('pre-priming-method', 'Priming Method is required.');
+    required('pre-priming-sys', 'Priming System is required.');
+    required('pre-kfactor', 'K Factor is required.');
+    required('pre-base-material', 'Base Material is required.');
+    required('pre-charge-style', 'Charge Style is required.');
+    required('pre-detcord', 'Det Cord Used is required.');
+    required('pre-construction-notes', 'Construction Notes are required.');
+    required('pre-sig', 'Signature is required.');
+    if (!calcConfirmed) errors.push({ id: 'pre-kfactor', message: 'Confirm calculations before generating the PDF.' });
+    if (propVal === 'yes' && !(document.getElementById('pre-prop-type')?.value || '').trim()) {
+      errors.push({ id: 'pre-prop-type', message: 'Prop Stick Type is required when Prop Stick is Yes.' });
+    }
+    if ((document.getElementById('pre-priming-sys')?.value || '') === 'Other' && !(document.getElementById('pre-priming-other')?.value || '').trim()) {
+      errors.push({ id: 'pre-priming-other', message: 'Priming System detail is required when Other is selected.' });
+    }
+  } else {
+    required('post-shot', 'Shot Number is required.');
+    required('post-primary', 'Primary Breacher is required.');
+    required('post-asst', 'Assistant Breacher is required.');
+    required('post-placed-by', 'Charge Placed By is required.');
+    
+    required('post-date', 'Date is required.');
+    required('post-time', 'Time is required.');
+    required('post-loc', 'Location / Address is required.');
+    requiredToggle('post-tog-train', !!classVal, 'Classification is required.');
+    required('post-charge-desc', 'Charge Description is required.');
+    required('ref-ct', 'Charge Type is required.');
+    required('post-tgt-cat', 'Target Category is required.');
+    required('post-tgt-type', 'Target Type is required.');
+    required('post-material', 'Construction Material is required.');
+    requiredToggle('post-env-indoor', !!window.postEnvVal, 'Environment is required.');
+    required('post-det-by', 'Detonated By is required.');
+    requiredToggle('func-yes', funcVal !== null && funcVal !== undefined, 'Indicate whether the charge functioned as designed.');
+    required('post-notes', 'Post-Blast Results / Comments are required.');
+    required('post-sig', 'Signature is required.');
+    if ((document.getElementById('post-tgt-type')?.value || '') === 'Other (specify)' && !(document.getElementById('post-tgt-other')?.value || '').trim()) {
+      errors.push({ id: 'post-tgt-other', message: 'Target Type detail is required when Other is selected.' });
+    }
+    if (funcVal === 'no') {
+      required('post-fail-cat', 'Failure Category is required when the charge did not function as designed.');
+      requiredToggle('sec-yes', !!secVal, 'Secondary Attempt is required when the charge did not function as designed.');
+      if (secVal === 'yes' && !(document.getElementById('post-sec-method')?.value || '').trim()) {
+        errors.push({ id: 'post-sec-method', message: 'Secondary Method Used is required when Secondary Attempt is Yes.' });
+      }
+    }
+  }
+
+  // Deduplicate
+  const seen = new Set();
+  return errors.filter((e) => {
+    const key = e.id + '|' + e.message;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function showValidationSummary(type, errors) {
+  const panelId = type === 'pre' ? 'pre-validation-summary' : 'post-validation-summary';
+  const panel = document.getElementById(panelId);
+  if (!panel) return;
+
+  panel.innerHTML = '';
+
+  const head = document.createElement('div');
+  head.className = 'validation-summary-head';
+  head.innerHTML = `<span>⚠</span><span>${errors.length} issue${errors.length !== 1 ? 's' : ''} must be resolved before generating the PDF</span>`;
+  panel.appendChild(head);
+
+  const list = document.createElement('ul');
+  list.className = 'validation-summary-list';
+
+  errors.forEach(e => {
+    const li = document.createElement('li');
+    const btn = document.createElement('button');
+    btn.className = 'validation-summary-item-link';
+    btn.type = 'button';
+    btn.textContent = e.message;
+    btn.addEventListener('click', () => focusFirstInvalid(e.id));
+    li.appendChild(btn);
+    list.appendChild(li);
+  });
+  panel.appendChild(list);
+
+  const dismiss = document.createElement('button');
+  dismiss.className = 'validation-summary-dismiss';
+  dismiss.type = 'button';
+  dismiss.textContent = 'Dismiss';
+  dismiss.addEventListener('click', () => {
+    panel.classList.remove('show');
+    panel.innerHTML = '';
+    clearValidationState();
+  });
+  panel.appendChild(dismiss);
+
+  panel.classList.add('show');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  // Announce to screen readers
+  const announcer = document.getElementById('aria-announcer');
+  if (announcer) {
+    announcer.textContent = '';
+    requestAnimationFrame(() => {
+      announcer.textContent =
+        `${errors.length} validation error${errors.length !== 1 ? 's' : ''}. ${errors.map(e => e.message).join('. ')}`;
+    });
+  }
+}
+
+function hideValidationSummary(type) {
+  const panelId = type === 'pre' ? 'pre-validation-summary' : 'post-validation-summary';
+  const panel = document.getElementById(panelId);
+  if (panel) { panel.classList.remove('show'); panel.innerHTML = ''; }
+}
+
+function genPDF(type) {
+  clearValidationState();
+  hideValidationSummary(type);
+  const errors = validateReport(type);
+  if (errors.length) {
+    errors.forEach((e) => markInvalidById(e.id, e.message));
+    focusFirstInvalid(errors[0].id);
+    showValidationSummary(type, errors);
+    return;
+  }
+
+  // Guard against double-click / concurrent renders
+  const _genBtn = document.querySelector(type === 'pre' ? '.generate-btn-pre' : '.generate-btn-post');
+  if (_genBtn) {
+    if (_genBtn.dataset.rendering === '1') return;
+    _genBtn.dataset.rendering = '1';
+    _genBtn.disabled = true;
+  }
+  const _releaseBtn = function() {
+    if (_genBtn) { _genBtn.disabled = false; delete _genBtn.dataset.rendering; }
+  };
+
+  trimLargeNarrativeFields();
+
+  // Show loading overlay
+  const _overlay = document.getElementById('overlay');
+  const _overlayLabel = document.getElementById('overlay-label');
+  if (_overlay) { if (_overlayLabel) _overlayLabel.textContent = 'Generating PDF…'; _overlay.classList.add('active'); }
+
+  const sn    = document.getElementById(type === 'pre' ? 'pre-shot' : 'post-shot').value.trim();
+  const title = type === 'pre' ? 'PRE-BLAST' : 'POST-BLAST';
+  const htmlString = buildPDFHTML(type);
+
+  if (window.jspdf && window.html2canvas) {
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.left = '-9999px';
+    iframe.style.top = '0';
+    iframe.style.width = '1200px';
+    iframe.style.height = '10px';
+    iframe.style.border = '0';
+    iframe.style.visibility = 'hidden';
+    document.body.appendChild(iframe);
+
+    iframe.onload = async () => {
+      try {
+        const frameDoc = iframe.contentDocument || iframe.contentWindow.document;
+        // Expand iframe to full content height so layout is accurate
+        iframe.style.height = frameDoc.body.scrollHeight + 'px';
+        await waitForDocumentImages(frameDoc);
+        const canvas = await html2canvas(frameDoc.body, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff',
+          windowWidth: 1200
+        });
+
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'pt', 'letter');
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const margin = 24;
+        const usableWidth = pageWidth - margin * 2;
+        const imgHeight = canvas.height * usableWidth / canvas.width;
+        const pageCanvasHeight = Math.floor((pageHeight - margin * 2) * canvas.width / usableWidth);
+
+        // Collect forced page-break positions using offsetTop (document-relative,
+        // accurate regardless of iframe viewport size) mapped to canvas pixel Y.
+        const canvasScale = canvas.height / frameDoc.body.scrollHeight;
+        const pageBreakCanvasYs = [];
+        frameDoc.querySelectorAll('[data-pdf-pagebreak]').forEach(el => {
+          // Walk offsetParent chain for accurate document-top offset
+          let elDocTop = 0;
+          let node = el;
+          while (node && node !== frameDoc.body) {
+            elDocTop += node.offsetTop || 0;
+            node = node.offsetParent;
+          }
+          const canvasY = Math.floor(elDocTop * canvasScale);
+          if (canvasY > 0) pageBreakCanvasYs.push(canvasY);
+        });
+        pageBreakCanvasYs.sort((a, b) => a - b);
+
+        let sourceY = 0;
+        let renderedHeight = 0;
+        let breakIdx = 0;
+
+        while (sourceY < canvas.height) {
+          // Determine the end of this slice: either the next forced break or the page height
+          let sliceEnd = sourceY + pageCanvasHeight;
+
+          // Check if a forced break falls inside this slice
+          while (breakIdx < pageBreakCanvasYs.length && pageBreakCanvasYs[breakIdx] <= sourceY) {
+            breakIdx++; // already past this break
+          }
+          if (breakIdx < pageBreakCanvasYs.length && pageBreakCanvasYs[breakIdx] < sliceEnd) {
+            sliceEnd = pageBreakCanvasYs[breakIdx];
+            breakIdx++;
+          }
+
+          const sliceHeight = Math.min(sliceEnd - sourceY, canvas.height - sourceY);
+          if (sliceHeight <= 0) { sourceY = sliceEnd; continue; }
+
+          const pageCanvas = document.createElement('canvas');
+          pageCanvas.width = canvas.width;
+          pageCanvas.height = sliceHeight;
+          const ctx = pageCanvas.getContext('2d');
+          ctx.drawImage(canvas, 0, sourceY, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
+          const pageData = pageCanvas.toDataURL('image/jpeg', 0.92);
+
+          if (sourceY > 0) pdf.addPage();
+          const renderedSliceHeight = sliceHeight * usableWidth / canvas.width;
+          pdf.addImage(pageData, 'JPEG', margin, margin, usableWidth, renderedSliceHeight);
+
+          sourceY += sliceHeight;
+          renderedHeight += renderedSliceHeight;
+        }
+
+        const filename = `${sn || 'REPORT'}_APD_SWAT_${title}`;
+        if (isIOS()) {
+          // pdf.save() is a no-op on iOS — deliver via Blob URL overlay instead
+          const pdfBlob = pdf.output('blob');
+          pdfBlob._filename = filename;
+          _deliverBlobURL(null, pdfBlob, true);
+        } else {
+          pdf.save(`${filename}.pdf`);
+        }
+      } catch (err) {
+        console.error(err);
+        printReportFallback(htmlString, type);
+      } finally {
+        try { document.body.removeChild(iframe); } catch (e) {}
+        if (_overlay) _overlay.classList.remove('active');
+        _releaseBtn();
+      }
+    };
+
+    const frameDoc = iframe.contentDocument || iframe.contentWindow.document;
+    frameDoc.open();
+    frameDoc.write(htmlString);
+    frameDoc.close();
+    return;
+  }
+
+  if (_overlay) _overlay.classList.remove('active');
+  _releaseBtn();
+  printReportFallback(htmlString, type);
+}
+
+// ── RESPONSIVE DRAFT RESILIENCE ────────────────────────────────────────────
+const DRAFT_STORAGE_KEY = 'apd_swat_breacher_report_draft_v2_1';
+let autosaveTimer = null;
+
+function getDraftSnapshot() {
+  // Strip base64 photo data before writing to localStorage to prevent quota overflow.
+  // Photos are held in memory (photoDataURL / postPhotoDataURLs) and survive page
+  // navigation within the same session; they are simply not persisted across page reloads.
+  function _stripPhotos(html) {
+    if (!html) return html;
+    return html.replace(/src="data:[^"]{200,}"/g, 'src="data:removed"');
+  }
+  return {
+    savedAt: new Date().toISOString(),
+    mode,
+    preClassVal,
+    postClassVal,
+    classVal: null, // legacy key — kept for forward compat, not used on restore
+    propVal,
+    funcVal,
+    secVal,
+    postEnvVal: window.postEnvVal || null,
+    calcConfirmed,
+    totalGR,
+    lbsTNT,
+    msdVal,
+    rowId,
+    photoDataURL: null,       // not persisted — too large for localStorage
+    formPreHTML:  null, // deprecated — retained for schema compat only
+    formPostHTML: null, // deprecated — retained for schema compat only
+    fieldValues: (function _captureFields() {
+      // Only serialize fields belonging to the active form to avoid
+      // stale data from the inactive form polluting the draft.
+      if (!mode) return {};
+      const vals = {};
+      const PRE_FIELD_IDS = [
+        'pre-shot','pre-date','pre-loc','pre-built-by','pre-supervisor',
+        'pre-charge-type','pre-adhesion','pre-priming-method','pre-priming-sys',
+        'pre-priming-other','pre-prop-type','pre-base-material','pre-charge-style',
+        'pre-detcord','pre-initiation','pre-construction-notes',
+        'pre-kfactor','pre-h','pre-l','pre-w','pre-notes','pre-sig',
+        'pre-charge-type-select'
+      ];
+      const POST_FIELD_IDS = [
+        'post-shot','post-date','post-time','post-loc',
+        'post-actual-new','post-tnt-lbs','post-msd','post-charge-desc',
+        'post-primary','post-asst','post-placed-by',
+        'post-tgt-cat','post-tgt-type','post-tgt-other',
+        'post-material','post-thickness','post-hinge','post-lock',
+        'post-temp-f','post-humidity','post-weather-cond','post-det-by',
+        'post-fail-cat','post-sec-method','post-corrective',
+        'post-positive-breach','post-desirable-inside','post-desirable-outside',
+        'post-hazard-inside','post-hazard-outside','post-notes','post-sig',
+        'post-photo'
+      ];
+      const ACTIVE_IDS = mode === 'pre' ? PRE_FIELD_IDS : POST_FIELD_IDS;
+      ACTIVE_IDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (el.type === 'checkbox') { vals[id] = el.checked; }
+        else { vals[id] = el.value; }
+      });
+      return vals;
+    })(),
+    expRows: (function _captureExpRows() {
+      const rows = [];
+      document.querySelectorAll('#exp-body tr').forEach(function(row) {
+        const type = row.dataset.type;
+        const inputs = Array.from(row.querySelectorAll('input[type=number]')).map(function(i) { return i.value; });
+        const selects = Array.from(row.querySelectorAll('select')).map(function(s) { return s.value; });
+        rows.push({ type: type, inputs: inputs, selects: selects });
+      });
+      return rows;
+    })(),
+    shotDisplay: document.getElementById('shot-display') ? document.getElementById('shot-display').textContent : '',
+    shotDisplayClass: document.getElementById('shot-display') ? document.getElementById('shot-display').className : '',
+    shotBarDate: document.getElementById('shot-bar-date') ? document.getElementById('shot-bar-date').textContent : '',
+    refShotNum: document.getElementById('ref-shot-num') ? document.getElementById('ref-shot-num').textContent : ''
+  };
+}
+
+function saveDraftToStorage() {
+  try {
+    localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(getDraftSnapshot()));
+    hideAutosaveBanner();
+    markFormClean();
+    updateCompletionChip(mode);
+  } catch (err) {
+    console.error('Draft save failed', err);
+  }
+}
+
+function queueAutosave() {
+  if (!mode) return; // nothing to save when no form is active
+  markFormDirty();
+  clearTimeout(autosaveTimer);
+  autosaveTimer = setTimeout(saveDraftToStorage, 500);
+}
+
+function showAutosaveBanner(message) {
+  const banner = document.getElementById('autosave-banner');
+  const txt = document.getElementById('autosave-banner-text');
+  if (banner && txt) {
+    txt.textContent = message || 'Saved draft found on this device.';
+    banner.classList.add('show');
+  }
+}
+
+function hideAutosaveBanner() {
+  const banner = document.getElementById('autosave-banner');
+  if (banner) banner.classList.remove('show');
+}
+
+function applyDraftSnapshot(draft) {
+  if (!draft) return;
+
+  // ── Restore scalar state ──────────────────────────────────────────────────
+  mode          = draft.mode || null;
+  preClassVal   = draft.preClassVal  ?? (draft.classVal ?? null); // migrate legacy classVal
+  postClassVal  = draft.postClassVal ?? (draft.classVal ?? null);
+  propVal       = draft.propVal  ?? null;
+  funcVal       = draft.funcVal  ?? null;
+  secVal        = draft.secVal   ?? null;
+  window.postEnvVal = draft.postEnvVal || null;
+  calcConfirmed = !!draft.calcConfirmed;
+  totalGR       = Number(draft.totalGR || 0);
+  lbsTNT        = Number(draft.lbsTNT  || 0);
+  msdVal        = Number(draft.msdVal  || 0);
+  rowId         = Number(draft.rowId   || 0);
+  photoDataURL  = draft.photoDataURL   || null;
+
+  // ── Show correct form panel ───────────────────────────────────────────────
+  const app    = document.getElementById('app');
+  const splash = document.getElementById('splash');
+  if (app)    app.style.display    = 'block';
+  if (splash) splash.style.display = 'none';
+
+  const formPre  = document.getElementById('form-pre');
+  const formPost = document.getElementById('form-post');
+  if (formPre)  formPre.style.display  = mode === 'pre'  ? 'block' : 'none';
+  if (formPost) formPost.style.display = mode === 'post' ? 'block' : 'none';
+
+  const modeEl = document.getElementById('chrome-mode');
+  if (modeEl) {
+    modeEl.textContent = mode === 'post' ? 'Post-Blast' : 'Pre-Blast';
+    modeEl.className   = 'chrome-mode ' + (mode === 'post' ? 'chrome-mode-post' : 'chrome-mode-pre');
+  }
+
+  // ── Restore chrome bar text ───────────────────────────────────────────────
+  const sd  = document.getElementById('shot-display');
+  if (sd) {
+    sd.textContent = draft.shotDisplay || '—';
+    sd.className   = draft.shotDisplayClass || ((draft.shotDisplay && draft.shotDisplay !== '—') ? 'shot-bar-value' : 'shot-bar-value empty');
+  }
+  const sbd = document.getElementById('shot-bar-date');
+  if (sbd) sbd.textContent = draft.shotBarDate || 'No date selected';
+  const ref = document.getElementById('ref-shot-num');
+  if (ref) ref.textContent = draft.refShotNum || '—';
+
+  // ── Restore field values WITHOUT touching innerHTML ───────────────────────
+  // This preserves all inline event listeners and DOM structure.
+  function _restoreFieldValues() {
+    const vals = draft.fieldValues || {};
+
+    // Handle legacy drafts that used innerHTML — extract field values from saved HTML
+    // so old drafts still load correctly.
+    let legacyVals = {};
+    if (!draft.fieldValues && (draft.formPreHTML || draft.formPostHTML)) {
+      const tmp = document.createElement('div');
+      if (draft.formPreHTML)  tmp.innerHTML += draft.formPreHTML;
+      if (draft.formPostHTML) tmp.innerHTML += draft.formPostHTML;
+      tmp.querySelectorAll('[id]').forEach(el => {
+        if (el.type === 'checkbox') legacyVals[el.id] = el.checked;
+        else if (el.value !== undefined) legacyVals[el.id] = el.value;
+      });
+    }
+
+    const source = Object.keys(vals).length ? vals : legacyVals;
+
+    Object.entries(source).forEach(([id, savedVal]) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (el.type === 'file') return; // never restore file inputs
+      if (el.type === 'checkbox') {
+        el.checked = !!savedVal;
+      } else {
+        el.value = savedVal != null ? savedVal : '';
+      }
+    });
+  }
+
+  // ── Restore dependent UI ──────────────────────────────────────────────────
+  function _restoreDependents() {
+    _restoreFieldValues();
+
+    if (typeof togglePrimingOther === 'function') togglePrimingOther();
+
+    // Rebuild target-type dropdown AFTER setting tgt-cat value
+    const tgtCatEl = document.getElementById('post-tgt-cat');
+    if (typeof updateTgtTypes === 'function' && tgtCatEl) {
+      updateTgtTypes();
+      // Re-apply saved type value (updateTgtTypes() wipes the options)
+      const savedType = (draft.fieldValues || {})['post-tgt-type'] ||
+                        (function() {
+                          if (!draft.formPostHTML) return '';
+                          const tmp = document.createElement('div');
+                          tmp.innerHTML = draft.formPostHTML;
+                          const el = tmp.querySelector('#post-tgt-type');
+                          return el ? el.value : '';
+                        })();
+      const liveType = document.getElementById('post-tgt-type');
+      if (liveType && savedType) liveType.value = savedType;
+    }
+    if (typeof checkTgtOther === 'function') checkTgtOther();
+
+    // Restore toggle button visual state — scoped per form
+    const savedMode = mode;
+    if (preClassVal)  { mode = 'pre';  setTog('class', preClassVal);  }
+    if (postClassVal) { mode = 'post'; setTog('class', postClassVal); }
+    mode = savedMode; // restore active mode
+
+    if (propVal) setTog('prop', propVal);
+    if (funcVal) setTog('func', funcVal);
+    if (secVal)  setTog('secondary', secVal);
+    if (window.postEnvVal) setTog('postenv', window.postEnvVal);
+
+    if (typeof recalcPre  === 'function') recalcPre();
+    if (typeof recalcPost === 'function') recalcPost();
+    if (typeof recalcAll  === 'function') recalcAll();
+
+    // recalc() resets calcConfirmed = false; re-apply the saved value and
+    // show the confirmed banner if the draft had confirmed calculations.
+    if (draft.calcConfirmed) {
+      calcConfirmed = true;
+      const banner = document.getElementById('confirmed-banner');
+      if (banner) {
+        banner.style.display = 'block';
+        // Re-populate the confirmed banner values from restored globals
+        const _confFrag = lbsTNT > 0 ? Math.round(328 * Math.cbrt(lbsTNT) * 1000) / 1000 : 0;
+        const _setConf = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+        _setConf('conf-gr',      totalGR.toFixed(3));
+        _setConf('conf-tnt',     lbsTNT.toFixed(3));
+        _setConf('conf-msd',     msdVal.toFixed(3));
+        _setConf('conf-msd-ru',  ' ' + Math.ceil(msdVal) + ' ft');
+        _setConf('conf-frag',    _confFrag.toFixed(3));
+        _setConf('conf-frag-ru', ' ' + Math.ceil(_confFrag) + ' ft');
+      }
+    }
+  }
+  setTimeout(_restoreDependents, 0);
+
+  // Restore explosive rows if present (must run after DOM is ready)
+  if (Array.isArray(draft.expRows) && draft.expRows.length && draft.mode === 'pre') {
+    setTimeout(function _restoreExpRows() {
+      const tbody = document.getElementById('exp-body');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      rowId = 0;
+      draft.expRows.forEach(function(rowData) {
+        if (!rowData || !rowData.type) return;
+        addExpRow(rowData.type);
+        const lastRow = tbody.querySelector('tr:last-child');
+        if (!lastRow) return;
+        const inputs = lastRow.querySelectorAll('input[type=number]');
+        const selects = lastRow.querySelectorAll('select');
+        (rowData.inputs || []).forEach(function(v, i) { if (inputs[i]) inputs[i].value = v; });
+        (rowData.selects || []).forEach(function(v, i) { if (selects[i]) selects[i].value = v; });
+      });
+      recalc();
+      // Re-apply confirmed state after recalc() resets it
+      if (draft.calcConfirmed) {
+        calcConfirmed = true;
+        const banner = document.getElementById('confirmed-banner');
+        if (banner) {
+          banner.style.display = 'block';
+          const _confFrag = lbsTNT > 0 ? Math.round(328 * Math.cbrt(lbsTNT) * 1000) / 1000 : 0;
+          const _sc = function(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; };
+          _sc('conf-gr',      totalGR.toFixed(3));
+          _sc('conf-tnt',     lbsTNT.toFixed(3));
+          _sc('conf-msd',     msdVal.toFixed(3));
+          _sc('conf-msd-ru',  ' ' + Math.ceil(msdVal) + ' ft');
+          _sc('conf-frag',    _confFrag.toFixed(3));
+          _sc('conf-frag-ru', ' ' + Math.ceil(_confFrag) + ' ft');
+        }
+      }
+    }, 50);
+  }
+
+  hideAutosaveBanner();
+}
+
+function restoreSavedDraft() {
+  try {
+    const raw = localStorage.getItem(DRAFT_STORAGE_KEY);
+    if (!raw) return false;
+    applyDraftSnapshot(JSON.parse(raw));
+    return true;
+  } catch (err) {
+    console.error('Draft restore failed', err);
+    return false;
+  }
+}
+
+function restoreDraftFromBanner() {
+  restoreSavedDraft();
+}
+
+function discardDraftFromBanner() {
+  localStorage.removeItem(DRAFT_STORAGE_KEY);
+  hideAutosaveBanner();
+}
+
+function wireAutosaveListeners() {
+  document.addEventListener('input', function(e) {
+    if (e.target.closest('#app')) {
+      queueAutosave();
+      updateCompletionChip(mode);
+    }
+  }, true);
+
+  document.addEventListener('change', function(e) {
+    if (e.target.closest('#app')) {
+      queueAutosave();
+      updateCompletionChip(mode);
+    }
+  }, true);
+
+  document.addEventListener('click', function(e) {
+    if (e.target.closest('.tog-btn, .add-btn, .rm-btn, .confirm-btn, .chrome-back')) {
+      queueAutosave();
+      setTimeout(() => updateCompletionChip(mode), 0);
+    }
+  }, true);
+}
+
+function checkForStoredDraftOnLoad() {
+  try {
+    const raw = localStorage.getItem(DRAFT_STORAGE_KEY);
+    if (raw) {
+      let bannerMsg = 'Saved draft found on this device.';
+      try {
+        const draft = JSON.parse(raw);
+        if (draft && draft.savedAt) {
+          const savedDate = new Date(draft.savedAt);
+          bannerMsg = 'Draft found — saved ' + savedDate.toLocaleString() + '.';
+        }
+      } catch(e) {}
+      showAutosaveBanner(bannerMsg);
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+wireAutosaveListeners();
+checkForStoredDraftOnLoad();
+updateReliabilityStatus();
+window.addEventListener('online', updateReliabilityStatus);
+window.addEventListener('offline', updateReliabilityStatus);
+
+// ── POST-BLAST MULTI-PHOTO SUPPORT ─────────────────────────────────────────
+if (!window.postPhotoDataURLs) window.postPhotoDataURLs = [null, null, null, null];
+
+function triggerPostPhotoInput(event, slot) {
+  if (event && event.target && event.target.closest('.photo-remove-btn')) return;
+  const input = document.getElementById(`post-photo-${slot}-input`);
+  if (input) input.click();
+}
+
+function triggerPostPhotoInputKey(event, slot) {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    triggerPostPhotoInput(event, slot);
+  }
+}
+
+function setPostPhotoPreview(slot, dataUrl) {
+  if (!window.postPhotoDataURLs) window.postPhotoDataURLs = [null, null, null, null];
+  window.postPhotoDataURLs[slot - 1] = dataUrl;
+
+  const empty = document.getElementById(`post-photo-${slot}-empty`);
+  const preview = document.getElementById(`post-photo-${slot}-preview`);
+  const imgEl = document.getElementById(`post-photo-${slot}-img`);
+  const wrap = document.getElementById(`post-photo-wrap-${slot}`);
+
+  if (imgEl) imgEl.src = dataUrl || '';
+  if (empty) empty.style.display = dataUrl ? 'none' : 'flex';
+  if (preview) preview.style.display = dataUrl ? 'flex' : 'none';
+  if (wrap) wrap.setAttribute('aria-label', dataUrl ? `Post-blast photo ${slot} attached` : `Upload post-blast photo ${slot}`);
+
+  if (typeof queueAutosave === 'function') queueAutosave();
+}
+
+function handlePostPhotoUpload(event, slot) {
+  const input = event.target;
+  _processImageFile(input && input.files ? input.files[0] : null, input, function(dataUrl) {
+    setPostPhotoPreview(slot, dataUrl);
+  });
+}
+
+function syncPreChargeTypeFromSelect() {
+  const selectEl = document.getElementById('pre-charge-type-select');
+  const inputEl = document.getElementById('pre-charge-type');
+  if (!selectEl || !inputEl) return;
+
+  if (selectEl.value) {
+    inputEl.value = selectEl.value;
+    inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+}
+
+function syncPreChargeTypeSelectFromInput() {
+  const selectEl = document.getElementById('pre-charge-type-select');
+  const inputEl = document.getElementById('pre-charge-type');
+  if (!selectEl || !inputEl) return;
+
+  const normalized = inputEl.value.trim().toLowerCase();
+  const match = Array.from(selectEl.options).find(option => option.value && option.value.trim().toLowerCase() === normalized);
+  selectEl.value = match ? match.value : '';
+}
+
+function removePostPhoto(event, slot) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  const input = document.getElementById(`post-photo-${slot}-input`);
+  if (input) input.value = '';
+  setPostPhotoPreview(slot, null);
+}
+
+</script>
+</body>
+</html>
